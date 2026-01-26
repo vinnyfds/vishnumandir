@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-text-primary font-sans;
+    background-image: radial-gradient(
+      circle at center top,
+      rgba(255, 255, 255, 0.4) 0%,
+      rgba(255, 251, 235, 0) 100%
+    );
+  }
+
+  h1,
+  h2 {
+    @apply font-display;
+  }
+
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-serif;
+  }
+}

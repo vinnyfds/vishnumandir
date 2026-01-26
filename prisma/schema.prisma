@@ -1,0 +1,126 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      UserRole @default(EDITOR)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum UserRole {
+  ADMIN
+  EDITOR
+  FINANCE
+  EVENT_MANAGER
+}
+
+model Event {
+  id          String    @id @default(cuid())
+  title       String
+  description String?   @db.Text
+  startTime   DateTime
+  endTime     DateTime
+  category    EventType
+  location    String?
+  imageUrl    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+enum EventType {
+  PUJA
+  CULTURAL
+  EDUCATION
+  FESTIVAL
+}
+
+model Donation {
+  id                String            @id @default(cuid())
+  amount            Int // Store in cents
+  donorName         String
+  donorEmail        String
+  frequency         DonationFrequency
+  stripePaymentId   String?            @unique
+  stripeCustomerId String?
+  stripeSubscriptionId String?
+  status            String // e.g., 'succeeded', 'pending', 'failed'
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+}
+
+enum DonationFrequency {
+  ONE_TIME
+  MONTHLY
+  YEARLY
+}
+
+model PujaSponsorship {
+  id              String   @id @default(cuid())
+  pujaId          String   // Strapi puja-service id (e.g. PUJ-SATYANARAYAN-01)
+  pujaServiceName String
+  sponsorName     String
+  sponsorEmail    String
+  sponsorPhone    String?
+  requestedDate   DateTime
+  location        String?  // temple | offsite
+  notes           String?  @db.Text
+  attachmentUrl   String?
+  status          String   @default("pending") // pending, confirmed, completed
+  transactionId   String?  @unique
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model FacilityRequest {
+  id             String   @id @default(cuid())
+  requesterName  String
+  requesterEmail String
+  requesterPhone String
+  eventType      String   // e.g. religious, cultural, community
+  eventName      String?
+  eventDate      DateTime
+  startTime      String?
+  endTime        String?
+  numberOfGuests Int
+  details        String?  @db.Text
+  requirements   String?  @db.Text
+  status         String   @default("pending") // pending, approved, rejected
+  transactionId  String?  @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Newsletter {
+  id        String   @id @default(cuid())
+  title     String
+  issueDate DateTime
+  fileUrl   String // S3 URL to the PDF
+  createdAt DateTime @default(now())
+}
+
+enum FormSubmissionType {
+  DONATION_STATEMENT
+  CHANGE_OF_ADDRESS
+  EMAIL_SUBSCRIPTION
+}
+
+model FormSubmission {
+  id            String             @id @default(cuid())
+  formType      FormSubmissionType
+  email         String
+  payload       Json               // form-specific fields
+  transactionId String             @unique
+  createdAt     DateTime           @default(now())
+}

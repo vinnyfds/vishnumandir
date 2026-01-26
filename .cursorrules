@@ -1,0 +1,1476 @@
+---
+description: 
+alwaysApply: true
+---
+
+---
+description: 
+alwaysApply: true
+---
+
+---
+description: 
+alwaysApply: true
+---
+
+# Vishnu Mandir, Tampa - Comprehensive Project Rules
+
+This document provides essential development context, coding standards, architectural guidelines, and workflow requirements for the Vishnu Mandir, Tampa website project. As an AI development assistant, you MUST adhere to these rules to ensure code consistency, quality, and alignment with project goals.
+
+---
+
+## 1. Project Overview & Goals
+
+**Project:** Vishnu Mandir, Tampa  
+**Description:** A comprehensive website to serve the temple's community with accurate information, drive participation, enable self-service transactions, and reduce administrative workload.
+
+### Primary Goals (Priority Order)
+
+1. **Serve Devotees with Accurate, Up-to-Date Information** (MVP Priority)
+   - Daily/weekly puja schedules
+   - Priest/services info
+   - Festival pages
+   - "What's happening now" updates
+
+2. **Drive Participation + Community**
+   - Promote events/classes/cultural programs
+   - Newsletters and resources
+   - Easy discovery and sharing
+
+3. **Enable Self-Service Transactions**
+   - Recurring donations
+   - Puja sponsorships
+   - Facility requests/forms
+   - Email confirmations and admin tracking
+
+4. **Reduce Admin Workload**
+   - Admins can publish content without developers
+   - Manage events independently
+   - Handle form submissions
+   - Pull reports (CSV exports)
+
+### Target Audiences
+
+- **Devotees & families** (primary): schedules, services, festivals, donation/sponsorship
+- **Event attendees**: cultural events, classes, registrations, reminders
+- **Priests/temple staff**: service listings, requests, schedules, communications
+- **Donors & sponsors**: recurring donations, sponsorship info, tax receipts
+- **Volunteers/committee leads**: coordinator pages, communications, postings
+
+### Design Mood
+
+The website's aesthetic must be **spiritual, traditional, and serene**. It should feel welcoming and authentic, reflecting the temple's heritage. The design uses a "Temple Palette" of Saffron, Teal, and Warm Cream, with ornamental details and classic typography to evoke a sense of sacredness.
+
+---
+
+## 2. Core Technology Stack & Architecture
+
+### Frontend
+
+- **Framework:** Next.js 14+ (App Router) with React and TypeScript
+- **Styling:** Tailwind CSS (utility-first, no custom CSS files)
+- **State Management:** React Context or Zustand for complex state; useState for component-level state
+- **Data Fetching:** Server Components for initial data; SWR or React Query for client-side fetching
+- **Deployment:** AWS Amplify (manages Next.js hosting, CDN, and CI/CD)
+
+### Backend
+
+- **Runtime:** Node.js with TypeScript
+- **Framework:** Express.js (separate workspace in `backend/` directory)
+- **Database:** PostgreSQL (hosted on AWS RDS)
+- **ORM:** Prisma (single source of truth: `prisma/schema.prisma` at root)
+- **API Routes:** Express routes in `backend/src/api/` (can be deployed as serverless functions)
+
+### Third-Party Services
+
+- **Authentication:** AWS Cognito (admin login, role-based access)
+- **Payments:** Stripe (PCI-compliant payment processing)
+- **Email:** AWS SES (transactional emails: confirmations, notifications)
+- **File Storage:** AWS S3 (media uploads, newsletter PDFs)
+- **CMS:** Strapi (headless CMS, self-hosted)
+
+### Architectural Principles
+
+1. **Server-Side Generation (SSG) First:** Use SSG for static content pages (Deities, About, Puja Services Catalog) for maximum performance and SEO
+2. **Incremental Static Regeneration (ISR):** Use ISR for dynamic content that updates periodically (Puja Schedule, Event Calendar) - regenerates in background without full redeploy
+3. **Server Components Default:** Default to React Server Components for data fetching and rendering. Use `"use client"` directive ONLY when necessary (forms, event handlers, state hooks)
+4. **Serverless-First:** All backend logic deployed as serverless functions (scalable, cost-effective)
+5. **Jamstack Architecture:** Pre-built static pages served from CDN with dynamic API functions
+
+---
+
+## 3. File & Directory Structure
+
+Adhere to this standardized project structure. When creating new files, place them in the appropriate directory.
+
+```
+/
+├── app/                          # Next.js App Router
+│   ├── (admin)/                  # Admin-only routes (protected by middleware)
+│   │   └── dashboard/           # Admin dashboard pages
+│   ├── api/                      # Backend API routes (serverless functions)
+│   │   ├── donations/           # Stripe checkout and webhooks
+│   │   ├── events/               # CRUD for calendar events
+│   │   ├── forms/                # Form submissions (sponsorship, facility)
+│   │   └── webhooks/             # External webhooks (Stripe)
+│   ├── (site)/                   # Public-facing website pages
+│   │   ├── about/               # About Us, Deities, Temple Info
+│   │   ├── calendar/            # Event calendar page
+│   │   ├── donate/               # Donation page
+│   │   ├── events/[slug]/        # Individual event pages
+│   │   └── layout.tsx            # Public site layout
+│   ├── layout.tsx                # Root layout
+│   └── page.tsx                  # Home page
+├── components/                    # Reusable React components
+│   ├── ui/                       # Primitive components (Button, Card, Input)
+│   ├── forms/                    # Composite form components (DonationForm, SponsorshipForm)
+│   ├── layout/                   # Header, Footer, Navigation
+│   └── shared/                   # Domain-specific components (EventCard, PujaCard)
+├── lib/                          # Shared libraries, helpers, config
+│   ├── prisma.ts                 # Prisma client instance (singleton)
+│   ├── stripe.ts                 # Stripe client instance
+│   ├── cognito.ts                # AWS Cognito helpers
+│   └── utils.ts                  # General utility functions
+├── prisma/                       # Prisma schema and migrations
+│   └── schema.prisma             # Single source of truth for database schema
+├── public/                       # Static assets (images, logos, fonts, PDFs)
+├── styles/                       # Global styles
+│   └── globals.css               # Tailwind base layers and CSS variables
+├── types/                        # TypeScript type definitions
+├── .cursorrules                  # This file
+├── CHANGELOG.md                  # Project changelog (MUST update for all changes)
+├── tailwind.config.ts            # Tailwind CSS configuration
+└── next.config.mjs               # Next.js configuration
+```
+
+**Note:** The file structure uses Next.js App Router conventions. All routes are defined in the `app/` directory.
+
+---
+
+## 4. Coding Standards & Conventions
+
+### General
+
+- **Language:** Use **TypeScript** for ALL new code (`.ts`, `.tsx`). Strict mode enabled.
+- **Indentation:** **2 spaces** (not tabs). Configure Prettier accordingly.
+- **Formatting:** Code is formatted with Prettier on save. Ensure generated code is clean.
+- **Linting:** Follow ESLint configurations. Run `yarn lint` before committing.
+
+### Naming Conventions
+
+- **Variables & Functions:** `camelCase` (e.g., `getPujaSchedule`, `donationAmount`)
+- **React Components & TypeScript Interfaces/Types:** `PascalCase` (e.g., `PujaServiceCard`, `DonationForm`)
+- **Files & Directories:** `kebab-case` (e.g., `puja-schedule/`, `donation-form.tsx`)
+- **Component Files:** `PascalCase.tsx` (e.g., `EventCard.tsx`, `Button.tsx`)
+- **Constants:** `UPPER_SNAKE_CASE` (e.g., `MAX_DONATION_AMOUNT`)
+- **Database Models:** `PascalCase` and singular (e.g., `Event`, `Donation`, `PujaSponsorship`)
+- **Database Fields:** `camelCase` (e.g., `startTime`, `donorEmail`)
+
+### Comments & Documentation
+
+- **JSDoc Required:** Write comprehensive JSDoc comments for all non-trivial functions, API endpoints, and complex components
+- **Format:**
+  ```typescript
+  /**
+   * Creates a Stripe checkout session for a one-time donation.
+   * @param {number} amount - Donation amount in cents (e.g., 5000 for $50.00)
+   * @param {string} email - Donor's email address
+   * @returns {Promise<{clientSecret: string}>} Stripe client secret for payment
+   * @throws {Error} If Stripe API call fails
+   */
+  ```
+- **Inline Comments:** Use sparingly, only for complex or non-obvious logic
+
+---
+
+## 5. Frontend Development (Next.js / React)
+
+### Component Patterns
+
+- **Always use functional components with hooks.** No class components.
+- **Server Components by default:** Fetch data in Server Components. Only use Client Components when needed for interactivity.
+- **Component Structure:**
+  ```typescript
+  // components/ui/Button.tsx
+  import React from 'react';
+
+  interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+    variant?: 'primary' | 'secondary';
+    size?: 'sm' | 'md' | 'lg';
+  }
+
+  /**
+   * A reusable button component with themed variants.
+   * @param {ButtonProps} props - The component props
+   * @returns {JSX.Element} The rendered button element
+   */
+  export const Button = ({ 
+    className, 
+    variant = 'primary', 
+    size = 'md',
+    ...props 
+  }: ButtonProps) => {
+    const baseStyles = 'px-4 py-2 rounded-lg font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors';
+    const variantStyles = {
+      primary: 'bg-primary text-white hover:bg-primary/90 focus:ring-primary',
+      secondary: 'bg-secondary text-white hover:bg-secondary/90 focus:ring-secondary',
+    };
+    const sizeStyles = {
+      sm: 'text-sm px-3 py-1.5',
+      md: 'text-base px-4 py-2',
+      lg: 'text-lg px-6 py-3',
+    };
+    
+    return (
+      <button 
+        className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+        {...props}
+      />
+    );
+  };
+  ```
+
+### State Management
+
+- **Component-level state:** Use `useState` and `useReducer`
+- **Cross-component state:** Use React Context or Zustand (avoid Redux)
+- **Server state:** Use SWR or React Query for caching and revalidation
+
+### Data Fetching
+
+- **Server Components:** Fetch data from backend API in Server Components (async components)
+  ```typescript
+  // frontend/src/app/calendar/page.tsx (Server Component)
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+
+  export default async function CalendarPage() {
+    const res = await fetch(`${API_URL}/api/events`, { next: { revalidate: 300 } });
+    const { data: events } = await res.json();
+
+    return <EventCalendar events={events} />;
+  }
+  ```
+- **Client-side fetching:** Use SWR or React Query for dynamic, user-specific data
+
+---
+
+## 6. Styling (Tailwind CSS)
+
+### Strict Rules
+
+- **Utility-First Only:** Do NOT write custom CSS classes in `.css` files. Use Tailwind utilities directly in JSX.
+- **No Inline Styles:** Use Tailwind classes, not `style={{}}` attributes.
+- **No CSS Modules:** Use Tailwind utilities exclusively.
+
+### Color Palette (Design System)
+
+Use the defined theme colors. Do NOT use arbitrary hex values.
+
+```typescript
+// tailwind.config.ts excerpt
+theme: {
+  extend: {
+    colors: {
+      primary: '#EA580C',        // Saffron (Agni) - CTAs, active nav
+      secondary: '#0F766E',      // Peacock (Krishna) - secondary actions
+      accent: '#F59E0B',         // Marigold (Gold) - highlights, borders
+      background: '#FFFBEB',     // Sandalwood (Cream) - primary background
+      'text-primary': '#451a03',  // Earth (Deep Brown) - main text
+      'text-secondary': '#6b7280', // Medium Gray - meta text
+      border: '#e5e7eb',          // Light Gray - borders
+      success: '#16a34a',         // Success messages
+      warning: '#f59e0b',        // Warning alerts
+      error: '#dc2626',          // Error messages
+    }
+  }
+}
+```
+
+**Color Usage Rules:**
+- Primary (`#d97706`): Only for large text (≥24px) or UI elements. For normal text, use `text-primary` (`#1f2937`)
+- Secondary (`#3b82f6`): Only for large text or UI elements. For normal text, use `text-primary`
+- Always check contrast ratios: 4.5:1 for normal text, 3:1 for large text
+
+### Dark Mode
+
+- **Implementation:** Use Tailwind's `dark:` variant
+- **Toggle:** Controlled by class on `<html>` element
+- **Required:** All components MUST support dark mode
+- **Example:**
+  ```tsx
+  <div className="bg-background dark:bg-gray-900 text-text-primary dark:text-gray-100">
+    Content
+  </div>
+  ```
+
+### Responsive Design
+
+- **Mobile-First:** Design for mobile first, then scale up
+- **Breakpoints:** Use Tailwind's default breakpoints (`sm:`, `md:`, `lg:`, `xl:`, `2xl:`)
+- **Required:** All components must be fully responsive
+
+### Typography
+
+- **Font Families:**
+  - Display: `font-display` (Cinzel) - Classic, inscription-style for main titles (`h1`, `h2`)
+  - Serif: `font-serif` (Playfair Display) - Elegant for subheadings (`h3`, cards)
+  - Body: `font-sans` (Lato) - Clean, readable for body text
+- **Type Scale:** Use Tailwind's default scale (`text-xs` through `text-5xl`)
+- **Line Height:** `leading-relaxed` (1.625) for body, `leading-tight` (1.25) for headings
+
+### Component Composition
+
+- For complex, repeated class strings, create a new component or helper function
+- Avoid using `@apply` unless absolutely necessary for external library styling
+
+---
+
+## 7. Backend Development (Express.js API)
+
+### API Route Structure
+
+All API routes must be in `backend/src/api/` directory following RESTful conventions. Routes are defined as Express routers.
+
+```
+backend/src/api/
+├── donations.routes.ts        # POST /api/donations (create checkout session)
+├── events.routes.ts           # GET, POST, PUT, DELETE /api/events
+├── forms.routes.ts            # POST /api/forms/sponsorship, /api/forms/facility
+├── auth.routes.ts            # Authentication endpoints
+└── index.ts                   # Main router combining all sub-routes
+```
+
+### Response Structure
+
+All API responses MUST follow a consistent JSON structure:
+
+```typescript
+// Success response
+{
+  success: true,
+  data: { ... },
+  message?: string
+}
+
+// Error response
+{
+  success: false,
+  error: "A descriptive error message.",
+  errors?: [
+    {
+      field: "email",
+      code: "INVALID_FORMAT",
+      message: "Must be a valid email address."
+    }
+  ]
+}
+```
+
+### Error Handling
+
+- **Wrap all database calls and external API requests in `try...catch` blocks**
+- **Return appropriate HTTP status codes:**
+  - `200 OK`: Successful GET request
+  - `201 Created`: Successful POST request (resource created)
+  - `400 Bad Request`: Validation error, malformed request
+  - `401 Unauthorized`: Missing or invalid authentication
+  - `403 Forbidden`: Authenticated but not authorized
+  - `404 Not Found`: Resource doesn't exist
+  - `429 Too Many Requests`: Rate limit exceeded
+  - `500 Internal Server Error`: Server-side error
+
+### Request Validation
+
+- **Use Zod for all request validation**
+- **Validate both request body and query parameters**
+- **Example:**
+  ```typescript
+  import { z } from 'zod';
+
+  const DonationSchema = z.object({
+    amount: z.number().int().min(100, 'Minimum donation is $1.00'),
+    email: z.string().email('Invalid email address'),
+    frequency: z.enum(['one-time', 'monthly']),
+  });
+
+  router.post('/donations', async (req, res) => {
+    try {
+      const validated = DonationSchema.parse(req.body);
+      // Process validated data...
+      res.status(201).json({ success: true, data: { ... } });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          success: false,
+          error: 'Validation failed',
+          errors: error.issues
+        });
+      }
+      // Handle other errors...
+    }
+  });
+  ```
+
+### API Contracts
+
+- **Reference:** All API endpoints must adhere to the OpenAPI contract defined in `docs/architecture/api-contracts.md`
+- **Consistency:** Request/response structures must match the contract
+- **Property Names:** Use `camelCase` for all JSON properties
+
+---
+
+## 8. Database Guidelines (Prisma)
+
+### Schema Management
+
+- **Single Source of Truth:** `prisma/schema.prisma` is the ONLY place to define database models
+- **Model Naming:** `PascalCase` and singular (e.g., `Event`, `Donation`, `PujaSponsorship`)
+- **Field Naming:** `camelCase` (e.g., `startTime`, `donorEmail`, `transactionId`)
+
+### Prisma Client
+
+- **Singleton Pattern:** Create a single Prisma client instance in `backend/src/utils/prisma.client.ts`
+- **Reuse:** Import and reuse this instance throughout the backend application
+- **Example:**
+  ```typescript
+  // backend/src/utils/prisma.client.ts
+  import { PrismaClient } from '@prisma/client';
+
+  const globalForPrisma = globalThis as unknown as {
+    prisma: PrismaClient | undefined;
+  };
+
+  export const prisma = globalForPrisma.prisma ?? new PrismaClient();
+
+  if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+  ```
+
+### Migrations
+
+- **Always use migrations:** Never modify the database directly
+- **Workflow:**
+  1. Modify `prisma/schema.prisma`
+  2. Generate migration: `npx prisma migrate dev --name <descriptive-name>`
+  3. Apply migration: Automatically applied in dev, manually in production
+- **Migration Naming:** Use descriptive names (e.g., `add_recurring_donation_fields`, `create_puja_sponsorship_table`)
+
+### Build Process & Deployment
+
+- **Prisma Client Generation:** MUST be generated before TypeScript build
+  ```json
+  // package.json
+  {
+    "scripts": {
+      "build": "prisma generate && next build",
+      "prebuild": "prisma generate"
+    }
+  }
+  ```
+- **Deployment Order:**
+  1. Generate Prisma Client: `npx prisma generate`
+  2. Run migrations: `npx prisma migrate deploy` (production) or `npx prisma migrate dev` (development)
+  3. Build application: `npm run build`
+  4. Seed database (optional): `npx prisma db seed`
+
+### PostgreSQL SSL Connection
+
+- **AWS RDS Requirement:** PostgreSQL on AWS RDS requires SSL connections
+- **Connection String Format:**
+  ```bash
+  # Development (local, no SSL)
+  DATABASE_URL="postgresql://user:pass@localhost:5432/db"
+  
+  # Production (AWS RDS, SSL required)
+  DATABASE_URL="postgresql://user:pass@host:5432/db?sslmode=require"
+  ```
+- **Rule:** Always add `?sslmode=require` to DATABASE_URL for production RDS instances
+
+### Example Schema
+
+```prisma
+// prisma/schema.prisma
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  startTime   DateTime
+  endTime     DateTime
+  type        EventType
+  isFeatured  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum EventType {
+  PUJA
+  CULTURAL
+  EDUCATION
+}
+
+model Donation {
+  id              String   @id @default(cuid())
+  createdAt       DateTime @default(now())
+  donorEmail      String
+  amount          Int      // Stored in cents
+  frequency       String   // "one-time" or "recurring"
+  stripeCustomerId String?
+  stripeSubscriptionId String?
+  transactionId   String   @unique
+  status          String   @default("pending")
+}
+```
+
+---
+
+## 9. Authentication & Authorization
+
+### Authentication (AWS Cognito)
+
+- **Service:** AWS Cognito for admin authentication
+- **Flow:**
+  1. Admin navigates to `/admin/login`
+  2. Redirected to Cognito Hosted UI
+  3. Upon successful login, Cognito returns JWT
+  4. JWT included in `Authorization` header for subsequent requests
+  5. Middleware validates token and extracts user info
+
+### Role-Based Access Control (RBAC)
+
+**Roles (must match exactly):**
+- `Admin`: Full system access
+- `Editor`: Content management (pages, posts)
+- `Finance`: Financial reports and exports
+- `Event Manager`: Event calendar management
+
+**Permission Matrix:**
+- **User Management:** Admin only
+- **Pages & Posts:** Admin (full), Editor (C/R/U)
+- **Event Calendar:** Admin (full), Event Manager (C/R/U/D)
+- **Puja Schedule:** Admin (full), Event Manager (C/R/U/D)
+- **Donations Report:** Admin (full), Finance (R/Export)
+- **Sponsorship Forms:** Admin (full), Finance (R/U)
+
+### Middleware Protection
+
+- **Use Next.js Middleware** (`middleware.ts`) to protect admin routes
+- **Verify JWT:** Extract and validate Cognito JWT
+- **Check Roles:** Verify user has required role from `cognito:groups` claim
+
+---
+
+## 10. Payment Processing (Stripe)
+
+### Workflow
+
+1. **Frontend:** User fills donation/sponsorship form
+2. **Frontend:** Calls API route (e.g., `/api/donations`)
+3. **Backend:** Creates Stripe Checkout Session or Payment Intent
+4. **Backend:** Returns `clientSecret` or session URL
+5. **Frontend:** Redirects to Stripe Checkout or uses Stripe Elements
+6. **Stripe:** Processes payment
+7. **Stripe → Backend:** Sends webhook to `/api/webhooks/stripe`
+8. **Backend:** Verifies webhook signature, updates database, sends email via SES
+
+### Security Requirements
+
+- **Never expose Stripe secret keys on client:** All Stripe API calls must be server-side
+- **Webhook Verification:** Always verify Stripe webhook signatures
+- **PCI Compliance:** No credit card data touches our servers (handled by Stripe)
+- **Environment Variables:** Store Stripe keys in `.env.local` (never commit)
+
+### Implementation
+
+```typescript
+// lib/stripe.ts
+import Stripe from 'stripe';
+
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2024-11-20.acacia',
+});
+
+// app/api/donations/route.ts
+import { stripe } from '@/lib/stripe';
+
+export async function POST(request: Request) {
+  const { amount, email } = await request.json();
+  
+  const session = await stripe.checkout.sessions.create({
+    mode: 'payment',
+    payment_method_types: ['card'],
+    line_items: [{
+      price_data: {
+        currency: 'usd',
+        product_data: { name: 'Temple Donation' },
+        unit_amount: amount, // in cents
+      },
+      quantity: 1,
+    }],
+    success_url: `${process.env.NEXT_PUBLIC_URL}/donate/success`,
+    cancel_url: `${process.env.NEXT_PUBLIC_URL}/donate`,
+    customer_email: email,
+  });
+
+  return Response.json({ success: true, data: { url: session.url } });
+}
+```
+
+---
+
+## 11. Content Management (Strapi CMS)
+
+### Integration
+
+- **Headless CMS:** Strapi is decoupled from frontend
+- **Data Fetching:** Next.js fetches content from Strapi API during build (SSG) or on-demand (ISR)
+- **API Token:** Store Strapi API token in environment variables
+- **Content Types:** Events, Puja Services, Pages, Posts, Festivals, Newsletter PDFs
+
+### Workflow
+
+1. **Editor logs into Strapi admin panel**
+2. **Creates/updates content** (event, page, etc.)
+3. **Publishes content** (available via Strapi API)
+4. **Next.js rebuilds** (via webhook or scheduled ISR regeneration)
+5. **New content appears on public website**
+
+---
+
+## 12. Performance Requirements
+
+### Core Web Vitals Targets
+
+- **LCP (Largest Contentful Paint):** < 2.5 seconds
+- **FID (First Input Delay):** < 100ms
+- **CLS (Cumulative Layout Shift):** < 0.1
+- **TTFB (Time to First Byte):** < 200ms
+
+### Implementation Strategies
+
+- **SSG for static content:** Pre-render at build time
+- **ISR for dynamic content:** Regenerate in background (5-10 minute intervals)
+- **Image Optimization:** Use Next.js Image component with automatic optimization
+- **Code Splitting:** Leverage Next.js automatic code splitting
+- **CDN:** All static assets served from CloudFront CDN (via AWS Amplify)
+
+---
+
+## 13. Security Requirements
+
+### Data Protection
+
+- **Encryption in Transit:** TLS 1.2+ (HTTPS only)
+- **Encryption at Rest:** PII encrypted in database
+- **PII Handling:** Do not log sensitive PII in application logs
+- **Environment Variables:** Never commit secrets to Git
+
+### Authentication & Authorization
+
+- **Admin Auth:** AWS Cognito with MFA recommended
+- **RBAC:** Strict role-based access control enforced
+- **JWT Validation:** Verify all JWTs before processing requests
+
+### Payment Security
+
+- **PCI Compliance:** All payments via Stripe (PCI DSS Level 1)
+- **No Card Storage:** Never store credit card numbers
+- **Webhook Security:** Verify all Stripe webhook signatures
+
+### Audit Logging
+
+- **Required Actions to Log:**
+  - User login success/failure
+  - Content creation/modification/deletion
+  - User role/permission changes
+  - Financial report exports
+- **Log Contents:** Timestamp, user ID, action, resource, IP address
+
+---
+
+## 14. Accessibility (WCAG 2.1 AA)
+
+### Requirements
+
+- **Conformance Level:** WCAG 2.1 Level AA (minimum)
+- **Testing:** Use Lighthouse, WAVE, Axe DevTools, and manual keyboard/screen reader testing
+
+### Key Requirements
+
+- **Semantic HTML:** Use proper HTML5 elements (`<nav>`, `<main>`, `<article>`, etc.)
+- **Alt Text:** All meaningful images must have descriptive `alt` attributes
+- **Keyboard Navigation:** All functionality must be keyboard accessible
+- **Focus Indicators:** Visible focus states on all interactive elements
+- **Color Contrast:** Minimum 4.5:1 for normal text, 3:1 for large text
+- **Form Labels:** All form inputs must have associated `<label>` elements
+- **ARIA:** Use ARIA attributes when semantic HTML is insufficient
+- **Skip Links:** "Skip to main content" link on all pages
+
+### Implementation Examples
+
+```tsx
+// Good: Semantic HTML with proper labels
+<form>
+  <label htmlFor="email">Email Address</label>
+  <input 
+    type="email" 
+    id="email" 
+    name="email"
+    autoComplete="email"
+    aria-required="true"
+  />
+  <button type="submit" className="focus:outline-none focus:ring-2 focus:ring-primary">
+    Submit
+  </button>
+</form>
+
+// Good: Image with alt text
+<Image 
+  src="/images/temple.jpg" 
+  alt="Main entrance of Vishnu Mandir, Tampa with traditional architecture"
+  width={800}
+  height={600}
+/>
+```
+
+---
+
+## 15. SEO Requirements
+
+### Technical SEO
+
+- **Sitemap:** Generate and maintain `sitemap.xml`
+- **Robots.txt:** Configure `robots.txt` appropriately
+- **Meta Tags:** Unique `<title>` and `<meta description>` for each page
+- **Structured Data:** Use Schema.org JSON-LD for:
+  - Organization (temple info)
+  - Event (puja schedules, cultural events)
+  - WebPage (content pages)
+
+### Implementation
+
+```tsx
+// app/layout.tsx
+export const metadata = {
+  title: 'Vishnu Mandir, Tampa - Hindu Temple & Community Center',
+  description: 'Welcome to Vishnu Mandir, Tampa. View puja schedules, events, and make donations.',
+};
+
+// app/events/[slug]/page.tsx
+export async function generateMetadata({ params }: { params: { slug: string } }) {
+  const event = await getEvent(params.slug);
+  return {
+    title: `${event.title} - Vishnu Mandir, Tampa`,
+    description: event.description,
+  };
+}
+```
+
+---
+
+## 16. Testing Requirements
+
+### Unit Tests
+
+- **Utility Functions:** Write unit tests for all utility functions in `lib/`
+- **Framework:** Use Jest or Vitest
+- **Coverage:** Aim for 80%+ coverage on utility functions
+
+### Integration Tests
+
+- **API Endpoints:** Test API routes with proper request/response validation
+- **Database Operations:** Test Prisma queries and mutations
+
+### Component Tests
+
+- **Framework:** React Testing Library
+- **Focus:** Test user interactions and accessibility, not implementation details
+
+### Manual Testing
+
+- **Browser Testing:** Latest 2 versions of Chrome, Firefox, Safari, Edge
+- **Device Testing:** Mobile (iOS/Android), Tablet, Desktop
+- **Accessibility Testing:** Keyboard navigation, screen reader testing
+
+---
+
+## 17. Changelog Integration (MANDATORY)
+
+### Requirement
+
+**EVERY code change, feature addition, bug fix, or configuration update MUST be documented in `CHANGELOG.md`.**
+
+### Format
+
+Follow [Keep a Changelog](https://keepachangelog.com/) format with Conventional Commits style:
+
+```markdown
+## [Unreleased]
+
+### Added
+- feat(components): Created PujaServiceCard component - components/ui/PujaServiceCard.tsx
+- feat(api): Added POST /api/donations endpoint with Stripe integration - app/api/donations/route.ts
+
+### Changed
+- refactor(lib): Moved date formatting to lib/utils.ts - lib/utils.ts
+
+### Fixed
+- fix(forms): Corrected email validation in sponsorship form - components/forms/SponsorshipForm.tsx
+
+### Security
+- security(api): Added webhook signature verification for Stripe - app/api/webhooks/stripe/route.ts
+```
+
+### Entry Requirements
+
+- **Type Prefix:** Use Conventional Commits types (feat, fix, refactor, docs, test, chore, security)
+- **Scope:** Specify the area affected (components, api, lib, etc.)
+- **Description:** Clear, concise description
+- **Files Changed:** List key files modified (optional but recommended)
+
+### When to Update Changelog
+
+- ✅ New component creation
+- ✅ API endpoint addition/modification
+- ✅ Database schema changes
+- ✅ Configuration updates
+- ✅ Bug fixes
+- ✅ Refactoring
+- ✅ Documentation updates
+- ✅ Dependency updates (major versions)
+
+---
+
+## 18. Development Workflow
+
+### Pre-Development Checklist
+
+1. ✅ Review relevant documentation in `docs/`
+2. ✅ Check existing code patterns in similar files
+3. ✅ Verify design system requirements
+4. ✅ Plan component structure and API contracts
+
+### Development Checklist
+
+1. ✅ Follow file structure conventions
+2. ✅ Use TypeScript with strict typing
+3. ✅ Apply Tailwind utilities (no custom CSS)
+4. ✅ Write JSDoc comments for functions
+5. ✅ Implement error handling
+6. ✅ Add request validation (Zod)
+7. ✅ Ensure accessibility (WCAG 2.1 AA)
+8. ✅ Test responsive design (mobile-first)
+9. ✅ Verify dark mode support
+10. ✅ Update CHANGELOG.md
+
+### Pre-Commit Checklist
+
+1. ✅ Run `yarn lint` and fix all errors
+2. ✅ Run `yarn format` to ensure consistent formatting
+3. ✅ Test locally (dev server)
+4. ✅ Verify CHANGELOG.md is updated
+5. ✅ Review code for security issues
+
+### Commit Message Format
+
+Follow [Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+<type>(<scope>): <short description>
+
+[optional longer description]
+
+[optional footer]
+```
+
+**Types:** `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `security`
+
+**Example:**
+```
+feat(donations): Add recurring donation support
+
+- Implemented Stripe subscription creation
+- Added subscription management in admin panel
+- Updated database schema for recurring donations
+
+Closes #123
+```
+
+---
+
+## 19. AI Interaction Guidelines
+
+### For AI Assistants
+
+1. **Check CHANGELOG.md First:** Before performing ANY task, MUST read and review `CHANGELOG.md` to understand:
+   - Recent changes and implementations
+   - Established patterns and conventions
+   - Previous work that might conflict or overlap
+   - Current project state and context
+2. **Acknowledge and Plan:** Before writing code, briefly state your plan
+3. **Follow Rules:** Strictly adhere to all rules in this document
+4. **Update Changelog:** After generating or modifying code, MUST append to `CHANGELOG.md`
+5. **Be Proactive:** If a request is ambiguous or conflicts with rules, ask for clarification
+6. **Code Quality:** Generate clean, readable, self-documenting code with JSDoc comments
+
+### Context References
+
+When using Cursor's `@` references:
+- `@.cursorrules` - This file (project context)
+- `@/prisma/schema.prisma` - Database schema
+- `@/components/ui/Button.tsx` - Existing component patterns
+- `@/lib/prisma.ts` - Utility functions
+- `@docs/architecture/api-contracts.md` - API specifications
+
+---
+
+## 20. Environment Variables
+
+### Required Variables
+
+```bash
+# Database
+# Development (local, no SSL)
+DATABASE_URL="postgresql://user:password@localhost:5432/database"
+# Production (AWS RDS, SSL required)
+DATABASE_URL="postgresql://user:password@host:5432/database?sslmode=require"
+
+# Stripe
+STRIPE_SECRET_KEY="sk_..."
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_..."
+STRIPE_WEBHOOK_SECRET="whsec_..."
+# Stripe API Version (use valid, current version)
+STRIPE_API_VERSION="2024-11-20.acacia"
+
+# AWS Cognito
+COGNITO_USER_POOL_ID="..."
+COGNITO_CLIENT_ID="..."
+NEXT_PUBLIC_COGNITO_REGION="us-east-1"
+
+# Strapi CMS
+CMS_API_URL="http://localhost:1337/api"
+CMS_API_TOKEN="..."
+
+# AWS SES (for emails)
+AWS_SES_REGION="us-east-1"
+AWS_ACCESS_KEY_ID="..."
+AWS_SECRET_ACCESS_KEY="..."
+
+# Application
+NEXT_PUBLIC_URL="http://localhost:3000"
+NEXTAUTH_SECRET="..."
+```
+
+### Security
+
+- **Never commit `.env.local`** to Git
+- **Use `.env.example`** as a template (without actual values)
+- **Prefix client-side variables** with `NEXT_PUBLIC_`
+
+### AWS Amplify Environment Variables
+
+- **Configuration Location:** AWS Amplify Console > App Settings > Environment Variables
+- **Important:** Environment variables must be set in Amplify Console, not just in `.env` files
+- **Client-Side Variables:** Only variables prefixed with `NEXT_PUBLIC_` are available in the browser
+- **Server-Side Variables:** Variables without `NEXT_PUBLIC_` prefix are only available in API routes (server-side)
+- **Build Time:** All environment variables are available during build time
+- **Required for Production:**
+  - `DATABASE_URL` (with `?sslmode=require` for RDS)
+  - `STRIPE_SECRET_KEY`
+  - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
+  - `STRIPE_WEBHOOK_SECRET`
+  - `COGNITO_USER_POOL_ID`
+  - `COGNITO_CLIENT_ID`
+  - `NEXT_PUBLIC_COGNITO_REGION`
+  - `CMS_API_URL`
+  - `CMS_API_TOKEN`
+  - `AWS_SES_REGION`
+  - `AWS_ACCESS_KEY_ID`
+  - `AWS_SECRET_ACCESS_KEY`
+  - `NEXT_PUBLIC_URL`
+  - `NEXTAUTH_SECRET`
+
+---
+
+## 21. Deployment (AWS Amplify)
+
+### CI/CD Pipeline
+
+- **Trigger:** Pushing to `main` branch triggers production deployment
+- **Build:** AWS Amplify automatically detects Next.js and runs build
+- **Environment Variables:** Configure in Amplify Console (not in code)
+- **Preview Deployments:** Available for pull requests
+
+### Build Process
+
+1. Install dependencies (`yarn install` or `npm ci`)
+2. Generate Prisma Client (`npx prisma generate`)
+3. Run database migrations (`npx prisma migrate deploy` in production)
+4. Fetch content from Strapi API (if needed during build)
+5. Build Next.js application (SSG/ISR + API routes)
+6. Deploy static assets to S3/CloudFront
+7. Deploy API routes as Lambda functions
+
+### Build Configuration
+
+**Important:** This project uses Next.js API Routes (not static export), so API routes are automatically deployed as Lambda functions by AWS Amplify.
+
+**amplify.yml Example:**
+```yaml
+version: 1
+applications:
+  - frontend:
+      phases:
+        preBuild:
+          commands:
+            - npm ci
+            - npx prisma generate
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: .next
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+          - .next/cache/**/*
+```
+
+### Common Build Issues
+
+- **TypeScript Errors:** Fix all TypeScript compilation errors before pushing (run `npm run build` locally)
+- **Prisma Client Missing:** Ensure `npx prisma generate` runs before build
+- **Environment Variables:** Set all required variables in Amplify Console
+- **Database Connection:** Ensure DATABASE_URL includes `?sslmode=require` for RDS
+
+---
+
+## 22. Quick Reference
+
+### Common Tasks
+
+**Create a new component:**
+1. Create file in `components/` (e.g., `components/ui/Button.tsx`)
+2. Use TypeScript, functional component, Tailwind styling
+3. Add JSDoc comments
+4. Ensure dark mode and responsive design
+5. Update CHANGELOG.md
+
+**Create an API endpoint:**
+1. Create route file in `app/api/` (e.g., `app/api/events/route.ts`)
+2. Implement request validation (Zod)
+3. Add error handling (try/catch)
+4. Return consistent JSON response format
+5. Update CHANGELOG.md
+
+**Modify database schema:**
+1. Update `prisma/schema.prisma`
+2. Generate migration: `npx prisma migrate dev --name <name>`
+3. Update Prisma client: `npx prisma generate`
+4. Update CHANGELOG.md
+
+**Add a new page:**
+1. Create page file in `app/(site)/` (e.g., `app/(site)/about/page.tsx`)
+2. Use Server Component for data fetching
+3. Apply design system (colors, typography)
+4. Ensure accessibility and SEO
+5. Update CHANGELOG.md
+
+---
+
+## 24. TypeScript Deployment Patterns & Best Practices
+
+This section captures real-world TypeScript patterns learned from production deployments. These patterns prevent common compilation errors and ensure type safety.
+
+### Express Request Type Augmentation
+
+**Problem:** TypeScript doesn't know about custom properties added to Express Request objects (e.g., `req.user` from authentication middleware).
+
+**Solution:** Create `types/express.d.ts` to augment Express Request type:
+
+```typescript
+// types/express.d.ts
+import { Request } from 'express';
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string;
+        email: string;
+        role: string;
+        cognitoSub: string;
+      };
+    }
+  }
+}
+
+export {};
+```
+
+**Usage:** After creating this file, TypeScript will recognize `req.user` in all route handlers.
+
+### req.params Type Guards
+
+**Problem:** In Express 5.x, `req.params.id` can be `string | string[]` depending on route configuration, causing TypeScript errors.
+
+**Solution:** Always use type guards when accessing route parameters:
+
+```typescript
+// ❌ Bad - TypeScript error
+const id = req.params.id;
+
+// ✅ Good - Type guard pattern
+const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+
+// ✅ Good - In Prisma queries
+const event = await prisma.event.findUnique({
+  where: { 
+    id: Array.isArray(req.params.id) ? req.params.id[0] : req.params.id 
+  }
+});
+
+// ✅ Good - Extract to variable for reuse
+const eventId = Array.isArray(req.params.eventId) 
+  ? req.params.eventId[0] 
+  : req.params.eventId;
+```
+
+**Rule:** Apply this pattern to ALL route parameter access in API routes.
+
+### Zod Error Handling
+
+**Problem:** Zod changed from `error.errors` to `error.issues` in newer versions.
+
+**Solution:** Always use `error.issues`:
+
+```typescript
+import { z } from 'zod';
+
+try {
+  const validated = schema.parse(data);
+} catch (error) {
+  if (error instanceof z.ZodError) {
+    // ✅ Correct - use error.issues
+    return Response.json(
+      { 
+        success: false, 
+        error: 'Validation failed', 
+        errors: error.issues 
+      },
+      { status: 400 }
+    );
+  }
+}
+```
+
+**Rule:** Never use `error.errors` - always use `error.issues` for Zod errors.
+
+### Zod Default Values with Transform
+
+**Problem:** Default values must match the transformed type, not the input type.
+
+**Solution:**
+
+```typescript
+// ❌ Bad - default is string but transform returns number
+page: z.string().transform(Number).default('1')
+
+// ✅ Good - default is the transformed type (number)
+page: z.string().transform(Number).default(1)
+
+// ✅ Good - Alternative: use preprocess
+page: z.preprocess(
+  (val) => (typeof val === 'string' ? Number(val) : val),
+  z.number().default(1)
+)
+```
+
+### Stripe API Version Management
+
+**Problem:** Using future or invalid Stripe API versions causes runtime errors.
+
+**Solution:** Always use valid, current API versions:
+
+```typescript
+// lib/stripe.ts
+import Stripe from 'stripe';
+
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  // ✅ Use valid API version (check Stripe docs for latest)
+  apiVersion: '2024-11-20.acacia', // or '2023-10-16'
+});
+```
+
+**Rule:** 
+- Never use future dates (e.g., `'2024-12-18.acacia'` if current date is before Dec 18, 2024)
+- Check [Stripe API Versioning](https://stripe.com/docs/api/versioning) for valid versions
+- Use the latest stable version available at deployment time
+
+### Optional Chaining for Null Safety
+
+**Problem:** TypeScript strict mode requires null checks for potentially null/undefined objects.
+
+**Solution:** Use optional chaining and nullish coalescing:
+
+```typescript
+// ❌ Bad - TypeScript error: Object is possibly 'null'
+const name = review.user.firstName;
+
+// ✅ Good - Optional chaining with fallback
+const name = review.user?.firstName || 'Anonymous';
+
+// ✅ Good - For nested properties
+const address = (shippingDetails?.address as any)?.line1 || '';
+
+// ✅ Good - Type guard pattern
+if (review.user) {
+  const name = review.user.firstName;
+}
+```
+
+**Rule:** Always use optional chaining (`?.`) when accessing properties that might be null/undefined.
+
+### Type Assertions for External APIs
+
+**Problem:** External API responses (USPS, Shippo, etc.) have `unknown` types.
+
+**Solution:** Use type assertions or define interfaces:
+
+```typescript
+// ✅ Good - Type assertion for external API
+const token = (data as any).access_token;
+
+// ✅ Better - Define interface
+interface USPSResponse {
+  access_token?: string;
+  expires_in?: number;
+}
+
+const token = (data as USPSResponse).access_token;
+```
+
+**Rule:** Prefer defining interfaces over `as any`, but use `as any` when interface is too complex or unknown.
+
+### AuthRequest User Assignment
+
+**Problem:** Cannot assign `null` to `AuthRequest.user` for guest checkout.
+
+**Solution:**
+
+```typescript
+// ❌ Bad - Cannot assign null
+(req as AuthRequest).user = null;
+
+// ✅ Good - Delete property
+delete (req as any).user;
+
+// ✅ Good - Set to undefined
+(req as any).user = undefined;
+```
+
+---
+
+## 25. Deployment Troubleshooting & Common Issues
+
+This section documents common deployment issues and their solutions, learned from real production deployments.
+
+### AWS Amplify Build Issues
+
+#### Issue: TypeScript Compilation Errors During Build
+
+**Symptoms:** Build fails with TypeScript errors in API routes.
+
+**Solutions:**
+1. **Fix locally first:** Always run `npm run build` locally before pushing
+2. **Check type definitions:** Ensure all `@types/*` packages are installed
+3. **Verify Express types:** Ensure `types/express.d.ts` exists and is properly configured
+4. **Check req.params:** Apply type guards for all route parameters
+
+**Prevention:**
+- Run `npm run build` in CI/CD pipeline before deployment
+- Use TypeScript strict mode from the start
+- Fix all TypeScript errors before committing
+
+#### Issue: Environment Variables Not Available at Build Time
+
+**Symptoms:** `process.env.NEXT_PUBLIC_API_URL` is `undefined` in production.
+
+**Solution:**
+1. Go to AWS Amplify Console > App Settings > Environment Variables
+2. Add all `NEXT_PUBLIC_*` variables
+3. Rebuild the application
+
+**Required Variables:**
+```
+NEXT_PUBLIC_API_URL=https://api.vishnumandirtampa.org
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
+NEXT_PUBLIC_COGNITO_REGION=us-east-1
+```
+
+**Rule:** Only variables prefixed with `NEXT_PUBLIC_` are available in the browser. Server-side variables (without prefix) are only available in API routes.
+
+#### Issue: Build Cache Issues
+
+**Symptoms:** Module not found errors, stale dependencies.
+
+**Solution:** Configure `amplify.yml` with proper caching:
+
+```yaml
+version: 1
+applications:
+  - frontend:
+      phases:
+        preBuild:
+          commands:
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: .next
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+          - .next/cache/**/*
+```
+
+**Note:** This project uses Next.js API Routes (not static export), so API routes are deployed as Lambda functions automatically.
+
+### Prisma/PostgreSQL Deployment Issues
+
+#### Issue: Prisma Client Not Generated
+
+**Symptoms:** `Error: Can't find Prisma Client. Please run: prisma generate`
+
+**Solution:** Ensure Prisma Client is generated before TypeScript build:
+
+```json
+// package.json
+{
+  "scripts": {
+    "build": "prisma generate && next build",
+    "prebuild": "prisma generate"
+  }
+}
+```
+
+**Deployment Order:**
+1. Generate Prisma Client: `npx prisma generate`
+2. Run migrations: `npx prisma migrate deploy` (production) or `npx prisma migrate dev` (development)
+3. Build TypeScript: `npm run build`
+
+#### Issue: Database SSL Connection Required
+
+**Symptoms:** `Error: SSL connection required. Please specify SSL options`
+
+**Solution:** Add `?sslmode=require` to DATABASE_URL for AWS RDS:
+
+```bash
+# ❌ Bad - Missing SSL
+DATABASE_URL="postgresql://user:pass@host:5432/db"
+
+# ✅ Good - With SSL for RDS
+DATABASE_URL="postgresql://user:pass@host:5432/db?sslmode=require"
+```
+
+**Rule:** Always use SSL for production databases (AWS RDS requires it).
+
+#### Issue: Migration Lock File Mismatch
+
+**Symptoms:** `Error: Migration lock file indicates different provider`
+
+**Solution:** Ensure `prisma/migrations/migration_lock.toml` matches schema:
+
+```toml
+# prisma/migrations/migration_lock.toml
+provider = "postgresql"
+```
+
+**Note:** This file is auto-generated. If manually edited, ensure it matches `schema.prisma` provider.
+
+#### Issue: Database Seeding After Migration
+
+**Symptoms:** `Error: Cannot seed database - tables don't exist`
+
+**Solution:** Follow proper deployment order:
+
+```bash
+# 1. Generate Prisma Client
+npx prisma generate
+
+# 2. Run migrations
+npx prisma migrate deploy  # Production
+# OR
+npx prisma migrate dev     # Development
+
+# 3. Seed database (optional)
+npx prisma db seed
+```
+
+**Rule:** Always run migrations before seeding in production.
+
+### Common TypeScript Compilation Errors
+
+#### Error: Property 'user' does not exist on type 'Request'
+
+**Solution:** Create `types/express.d.ts` (see Section 24.1)
+
+#### Error: Type 'string | string[]' is not assignable to type 'string'
+
+**Solution:** Use type guard: `Array.isArray(req.params.id) ? req.params.id[0] : req.params.id` (see Section 24.2)
+
+#### Error: Property 'errors' does not exist on type 'ZodError'
+
+**Solution:** Use `error.issues` instead of `error.errors` (see Section 24.3)
+
+#### Error: Invalid API version: '2024-12-18.acacia'
+
+**Solution:** Use valid Stripe API version (see Section 24.5)
+
+### Deployment Checklist
+
+Before deploying, verify:
+
+- [ ] TypeScript compiles without errors (`npm run build`)
+- [ ] Prisma Client generated (`npx prisma generate`)
+- [ ] Database migrations applied (`npx prisma migrate deploy`)
+- [ ] Environment variables set in Amplify Console
+- [ ] DATABASE_URL includes `?sslmode=require` for RDS
+- [ ] All API routes tested locally
+- [ ] Stripe webhook endpoint configured
+- [ ] AWS Cognito configured with correct user pool
+- [ ] All `NEXT_PUBLIC_*` variables set in Amplify Console
+
+---
+
+## 23. Additional Resources
+
+### Documentation
+
+- Project Charter: `docs/project-wide/project-brief-/-charter.md`
+- Architecture Overview: `docs/architecture/architecture-overview.md`
+- API Contracts: `docs/architecture/api-contracts.md`
+- BRD/FRD: `docs/requirements/brd/frd.md`
+- Non-Functional Requirements: `docs/requirements/non-functional-requirements.md`
+- Authorization: `docs/security/authorization-&-access-control.md`
+- Accessibility Checklist: `docs/accessibility/wcag-2.2-aa-checklist.md`
+- Design Tokens: `docs/design/brand-&-design-tokens.md`
+
+### External Resources
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [Prisma Documentation](https://www.prisma.io/docs)
+- [Stripe Documentation](https://stripe.com/docs)
+- [AWS Amplify Documentation](https://docs.amplify.aws/)
+- [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
+
+---
+
+**Last Updated:** 2026-01-25  
+**Version:** 2.0.0  
+**Maintained By:** Development Team

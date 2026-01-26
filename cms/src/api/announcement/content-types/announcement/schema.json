@@ -1,0 +1,31 @@
+{
+  "kind": "collectionType",
+  "collectionName": "announcements",
+  "info": {
+    "singularName": "announcement",
+    "pluralName": "announcements",
+    "displayName": "Announcement",
+    "description": "Site announcements and notices"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "content": {
+      "type": "richtext",
+      "required": true
+    },
+    "displayUntil": {
+      "type": "date"
+    },
+    "level": {
+      "type": "enumeration",
+      "enum": ["Info", "High-Priority"]
+    }
+  }
+}

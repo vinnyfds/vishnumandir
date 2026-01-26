@@ -1,0 +1,32 @@
+{
+  "kind": "collectionType",
+  "collectionName": "priests",
+  "info": {
+    "singularName": "priest",
+    "pluralName": "priests",
+    "displayName": "Priest",
+    "description": "Temple priests and their profiles"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "title": {
+      "type": "string"
+    },
+    "bio": {
+      "type": "richtext"
+    },
+    "profileImage": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"]
+    }
+  }
+}

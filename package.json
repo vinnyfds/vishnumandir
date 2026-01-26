@@ -1,0 +1,28 @@
+{
+  "name": "vishnu-mandir-tampa",
+  "version": "0.4.0",
+  "private": true,
+  "description": "Vishnu Mandir, Tampa - Hindu Temple & Community Center Website",
+  "scripts": {
+    "dev:frontend": "pnpm --filter frontend dev",
+    "dev:backend": "pnpm --filter backend dev",
+    "dev:cms": "pnpm --filter cms develop",
+    "dev": "pnpm run dev:backend & pnpm run dev:frontend",
+    "dev:all": "pnpm run dev:backend & pnpm run dev:frontend & pnpm run dev:cms",
+    "build:frontend": "pnpm --filter frontend build",
+    "build:backend": "pnpm --filter backend build",
+    "build": "pnpm run build:backend && pnpm run build:frontend",
+    "lint": "pnpm --filter frontend lint",
+    "typecheck": "pnpm --filter frontend typecheck && pnpm --filter backend typecheck"
+  },
+  "devDependencies": {
+    "prisma": "^5.19.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.19.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}

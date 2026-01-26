@@ -1,0 +1,52 @@
+{
+  "kind": "collectionType",
+  "collectionName": "puja_services",
+  "info": {
+    "singularName": "puja-service",
+    "pluralName": "puja-services",
+    "displayName": "Puja Service",
+    "description": "Puja services catalog with pricing"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "name",
+      "required": true
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "price": {
+      "type": "decimal",
+      "required": true
+    },
+    "location": {
+      "type": "enumeration",
+      "enum": ["In Temple", "Off-site"],
+      "required": true
+    },
+    "notes": {
+      "type": "text"
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "relatedPriests": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::priest.priest",
+      "description": "Priests who perform this service"
+    }
+  }
+}
