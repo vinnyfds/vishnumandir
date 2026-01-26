@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - docs(deployment): Created STRAPI_API_TROUBLESHOOTING.md with detailed troubleshooting steps - docs/deployment/STRAPI_API_TROUBLESHOOTING.md
 - docs(deployment): Created STRAPI_FIND_CONTENT_TYPES_IN_PERMISSIONS.md with step-by-step guide to locate content types - docs/deployment/STRAPI_FIND_CONTENT_TYPES_IN_PERMISSIONS.md
 - docs(deployment): Created STRAPI_FULL_ACCESS_TOKEN_SOLUTION.md for when individual content types don't appear in permissions - docs/deployment/STRAPI_FULL_ACCESS_TOKEN_SOLUTION.md
+- docs(deployment): Created STRAPI_TOKEN_VERIFICATION_STEPS.md with token verification and restart instructions - docs/deployment/STRAPI_TOKEN_VERIFICATION_STEPS.md
 - feat(scripts): Created test-strapi-api.sh script to test all Strapi API endpoints - scripts/test-strapi-api.sh
 
 ### Changed
