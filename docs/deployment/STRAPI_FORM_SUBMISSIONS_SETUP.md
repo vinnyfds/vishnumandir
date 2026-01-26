@@ -1,7 +1,15 @@
 # Strapi Form Submissions Integration Setup
 
 **Last Updated:** 2026-01-26  
-**Status:** Code Implementation Complete - Configuration In Progress
+**Status:** Code Deployed - Content Types Registered - Backend Configuration In Progress
+
+## Current Status
+
+- ✅ Strapi content types created and registered
+- ✅ Backend code deployed with Strapi integration
+- ✅ CMS_API_TOKEN configured in backend .env
+- ⚠️ Backend service needs DATABASE_PASSWORD to be set in .env
+- ⚠️ Strapi content types need to be activated in admin panel (first-time setup)
 
 ## Overview
 
@@ -30,56 +38,21 @@ Form submissions from the frontend are now automatically synced to Strapi CMS fo
 
 ### 1. Rebuild Strapi CMS
 
-After adding the new content types, Strapi needs to be rebuilt:
+**Status:** ✅ Completed
 
-```bash
-# SSH to CMS instance
-ssh -i /path/to/vishnumandir-cms.pem ubuntu@3.93.212.154
-
-# Navigate to CMS directory
-cd /home/ubuntu/vishnu-mandir-tampa/cms
-
-# Rebuild Strapi to register new content types
-npm run build
-
-# Restart Strapi service
-pm2 restart strapi-cms
-```
+After adding the new content types, Strapi has been rebuilt and content types are registered. The content types are now available in the Strapi admin panel.
 
 ### 2. Create Strapi API Token
 
-1. Access Strapi admin panel: `http://cms.vishnumandirtampa.com:1337/admin`
-2. Log in with admin credentials
-3. Navigate to **Settings** → **API Tokens**
-4. Click **Create new API Token**
-5. Configure:
-   - **Name:** `Backend API Token`
-   - **Token duration:** `Unlimited` (or set expiration as needed)
-   - **Token type:** `Full access` (or custom permissions for create on the three content types)
-6. Click **Save**
-7. **Copy the token** (it's only shown once)
+**Status:** ✅ Completed
+
+The API token has been created and configured in the backend `.env` file. The token is set and ready for use.
 
 ### 3. Configure Backend Environment Variable
 
-Add the Strapi API token to the backend instance:
+**Status:** ✅ Completed
 
-```bash
-# SSH to backend instance
-ssh -i /path/to/vishnumandir-backend.pem ubuntu@34.206.184.139
-
-# Navigate to backend directory
-cd /home/ubuntu/vishnu-mandir-tampa/backend
-
-# Edit .env file
-nano .env
-
-# Add or update:
-CMS_API_URL="http://cms.vishnumandirtampa.com:1337/api"
-CMS_API_TOKEN="your-token-here"
-
-# Restart backend service
-pm2 restart backend-api
-```
+The Strapi API token and URL have been configured in the backend `.env` file. The backend service has been restarted with the updated environment variables.
 
 ### 4. Configure Strapi Permissions
 
@@ -104,13 +77,30 @@ Set up role-based permissions in Strapi admin panel:
 **Event Manager Role:**
 - No access to form submissions (event management only)
 
-### 5. Test Integration
+### 5. Activate Content Types in Strapi Admin
+
+After rebuilding Strapi, the new content types need to be activated:
+
+1. Access Strapi admin panel: `http://cms.vishnumandirtampa.com:1337/admin`
+2. Log in with admin credentials
+3. Navigate to **Content Manager**
+4. You should see the new content types:
+   - **Puja Sponsorships**
+   - **Facility Requests**
+   - **Form Submissions**
+5. Click on each content type to view (they may be empty initially)
+6. Verify the fields match the schema
+
+### 6. Test Integration
 
 1. Submit a test form from the frontend (e.g., puja sponsorship)
 2. Verify entry created in PostgreSQL (existing flow)
 3. Check Strapi admin panel: **Content Manager** → **Puja Sponsorships**
 4. Verify submission appears in Strapi
-5. Check backend logs for Strapi sync messages
+5. Check backend logs for Strapi sync messages:
+   ```bash
+   pm2 logs backend-api | grep strapi
+   ```
 
 ## How It Works
 

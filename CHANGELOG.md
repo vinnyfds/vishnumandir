@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Docs
+- docs(deployment): Created CMS_CONTENT_DIAGNOSTIC_RESULTS.md with diagnostic findings - Diagnosed CMS content visibility issue: environment variables correctly configured, API connectivity working, issue is insufficient content in Strapi (only 1 event and 1 priest published, 0 puja services/announcements/newsletters) - docs/deployment/CMS_CONTENT_DIAGNOSTIC_RESULTS.md
+- docs(scripts): Created diagnose-cms-connection.sh diagnostic script - Tests all Strapi content type endpoints and reports availability - Helps identify content gaps and API connectivity issues - scripts/diagnose-cms-connection.sh
+
 ### Fixed
 - fix(frontend): Added comprehensive null safety checks for all Strapi data components - Added null checks in EventCard, PujaServiceCard, AnnouncementCard, NewsletterCard components to guard against undefined attributes - Added defensive filtering in priests, puja-services, and homepage pages to filter out invalid items - Prevents "Cannot read properties of undefined" errors during static page generation - Fixes Amplify build failures (Deployments 34-37) - frontend/src/components/shared/EventCard.tsx, frontend/src/components/shared/PujaServiceCard.tsx, frontend/src/components/shared/AnnouncementCard.tsx, frontend/src/components/shared/NewsletterCard.tsx, frontend/src/app/(site)/religious/priests/page.tsx, frontend/src/app/(site)/religious/puja-services/page.tsx, frontend/src/app/(site)/page.tsx
 - fix(frontend): Added null safety checks for event attributes in current-events page - Added guards for undefined event.attributes.date and event.attributes.startTime before calling isFutureEvent - Prevents "Cannot read properties of undefined (reading 'date')" error during static generation - frontend/src/app/(site)/calendar/current-events/page.tsx

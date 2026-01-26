@@ -1340,6 +1340,66 @@ applications:
 
 **Note:** This project uses Next.js API Routes (not static export), so API routes are deployed as Lambda functions automatically.
 
+#### Issue: pnpm Monorepo - Lockfile Out of Sync
+
+**Symptoms:** `ERR_PNPM_OUTDATED_LOCKFILE Cannot install with "frozen-lockfile" because pnpm-lock.yaml is not up to date`
+
+**Solution:**
+1. Run `pnpm install --no-frozen-lockfile` locally to update the lockfile
+2. Commit and push the updated `pnpm-lock.yaml`
+
+**Prevention:** Always run `pnpm install` after adding dependencies to any workspace package.
+
+#### Issue: pnpm Monorepo - Missing 'next' Dependency at Runtime
+
+**Symptoms:** `CustomerError: The 'node_modules' folder is missing the 'next' dependency`
+
+**Solution:**
+1. Create `.npmrc` at project root with `node-linker=hoisted`
+2. Use `buildPath: /` in `amplify.yml` to run install from monorepo root
+3. Regenerate lockfile with `pnpm install --no-frozen-lockfile`
+
+**Required `.npmrc` Configuration:**
+```
+node-linker=hoisted
+```
+
+#### Issue: pnpm Monorepo - Correct amplify.yml Configuration
+
+**Working Configuration for pnpm Monorepo:**
+```yaml
+version: 1
+applications:
+  - appRoot: frontend
+    frontend:
+      buildPath: /
+      phases:
+        preBuild:
+          commands:
+            - npm install -g pnpm
+            - pnpm install --frozen-lockfile
+            - npx prisma generate
+        build:
+          commands:
+            - cd frontend && pnpm run build
+      artifacts:
+        baseDirectory: frontend/.next
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - frontend/node_modules/**/*
+          - frontend/.next/cache/**/*
+          - node_modules/**/*
+```
+
+**Key Points:**
+- `appRoot: frontend` - Sets the app context for Amplify
+- `buildPath: /` - Runs commands from monorepo root (required for pnpm workspaces)
+- `npm install -g pnpm` - pnpm is not included in Amplify's default container
+- `baseDirectory: frontend/.next` - Relative to buildPath (root), not appRoot
+- Include both `frontend/node_modules/**/*` and `node_modules/**/*` in cache
+
 ### Prisma/PostgreSQL Deployment Issues
 
 #### Issue: Prisma Client Not Generated
@@ -1471,6 +1531,6 @@ Before deploying, verify:
 
 ---
 
-**Last Updated:** 2026-01-25  
+**Last Updated:** 2026-01-26  
 **Version:** 2.0.0  
 **Maintained By:** Development Team
