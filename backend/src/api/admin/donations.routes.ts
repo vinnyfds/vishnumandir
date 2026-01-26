@@ -87,7 +87,7 @@ router.get("/export", ...auth, async (req: Request, res: Response, next: (err?: 
     });
 
     const headers = ["id", "amount", "frequency", "status", "createdAt"];
-    const rows = donations.map((d) =>
+    const rows = donations.map((d: { id: string; amount: number; frequency: string; status: string; createdAt: Date }) =>
       [d.id, d.amount, d.frequency, d.status, d.createdAt.toISOString()].join(",")
     );
     const csv = [headers.join(","), ...rows].join("\n");
