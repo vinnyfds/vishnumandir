@@ -15,6 +15,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - docs(deployment): Created STRAPI_API_PERMISSIONS_FIX.md with instructions to fix 404 errors - docs/deployment/STRAPI_API_PERMISSIONS_FIX.md
 - docs(deployment): Created STRAPI_API_TROUBLESHOOTING.md with detailed troubleshooting steps - docs/deployment/STRAPI_API_TROUBLESHOOTING.md
 
+### Changed
+- refactor(audio): Replaced om.mp3 with vishnumandir-audio.mp3 and enabled auto-play on page load - Audio now plays automatically when users land on the page (default muted: false), users can still toggle it off - Replaced frontend/public/audio/om.mp3 with frontend/public/audio/vishnumandir-audio.mp3 - Updated OmAudioContext to use new audio file and default to playing - frontend/src/components/audio/OmAudioContext.tsx, frontend/public/audio/vishnumandir-audio.mp3
+
 ### Fixed
 - fix(images): Fixed squished deity images by maintaining proper aspect ratio - Changed image container from fixed height (h-48) to aspect-square to preserve 1:1 ratio for square deity images - frontend/src/app/(site)/deities/page.tsx
 - fix(images): Configured Next.js to allow Strapi CMS image domains - Added remotePatterns to next.config.ts for cms.vishnumandirtampa.com and localhost:1337 to enable priest images and other Strapi media to load correctly - frontend/next.config.ts

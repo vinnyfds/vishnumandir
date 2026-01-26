@@ -20,12 +20,12 @@ type OmAudioContextValue = {
 const OmAudioContext = createContext<OmAudioContextValue | null>(null);
 
 function getStoredMuted(): boolean {
-  if (typeof window === "undefined") return true;
+  if (typeof window === "undefined") return false;
   try {
     const v = localStorage.getItem(STORAGE_KEY);
-    return v !== null ? v === "true" : true;
+    return v !== null ? v === "true" : false;
   } catch {
-    return true;
+    return false;
   }
 }
 
@@ -42,7 +42,7 @@ function setStoredMuted(muted: boolean): void {
  * Renders a hidden audio element; play/pause syncs with muted state.
  */
 export function OmAudioProvider({ children }: { children: ReactNode }) {
-  const [muted, setMutedState] = useState(true);
+  const [muted, setMutedState] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -71,7 +71,7 @@ export function OmAudioProvider({ children }: { children: ReactNode }) {
     <OmAudioContext.Provider value={{ muted, toggleMuted }}>
       <audio
         ref={audioRef}
-        src="/audio/om.mp3"
+        src="/audio/vishnumandir-audio.mp3"
         loop
         playsInline
         preload="metadata"
