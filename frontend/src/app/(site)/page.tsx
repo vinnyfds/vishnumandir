@@ -4,6 +4,10 @@ import Link from "next/link";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Calendar, ArrowRight, Heart, Info } from "lucide-react";
 import { generateOrganizationSchema } from "@/lib/seo";
+import { fetchAnnouncements, fetchEvents } from "@/lib/strapi";
+import { AnnouncementCard } from "@/components/shared/AnnouncementCard";
+import { EventCard } from "@/components/shared/EventCard";
+import { isFutureEvent } from "@/lib/strapi-utils";
 
 export const metadata: Metadata = {
   title: "Vishnu Mandir, Tampa - Hindu Temple & Community Center | Puja Schedules & Events",
@@ -28,13 +32,45 @@ export const metadata: Metadata = {
   },
 };
 
+// ISR revalidation: 5 minutes
+export const revalidate = 300;
+
 /**
  * Home page featuring hero section, announcements, and quick links.
  * Updated with new "Spiritual & Serene" design system.
  * @returns {JSX.Element} The rendered home page
  */
-export default function HomePage() {
+export default async function HomePage() {
   const organizationSchema = generateOrganizationSchema();
+
+  // Fetch active announcements
+  const today = new Date();
+  const announcements = await fetchAnnouncements({
+    displayUntil: today,
+  });
+
+  // Sort: High-Priority first, then by publishedAt (newest first)
+  const sortedAnnouncements = [...announcements].sort((a, b) => {
+    if (a.attributes.level === "High-Priority" && b.attributes.level !== "High-Priority") {
+      return -1;
+    }
+    if (a.attributes.level !== "High-Priority" && b.attributes.level === "High-Priority") {
+      return 1;
+    }
+    const dateA = new Date(a.attributes.publishedAt || a.attributes.createdAt);
+    const dateB = new Date(b.attributes.publishedAt || b.attributes.createdAt);
+    return dateB.getTime() - dateA.getTime();
+  });
+
+  // Fetch featured/upcoming events (limit to 6)
+  const allEvents = await fetchEvents({
+    publishedAt: true,
+    sort: "date:asc",
+  });
+
+  const futureEvents = allEvents
+    .filter((event) => isFutureEvent(event.attributes.date, event.attributes.startTime))
+    .slice(0, 6);
   return (
     <>
       <script
@@ -97,26 +133,37 @@ export default function HomePage() {
             title="What's Happening Now"
             subtitle="Latest updates and announcements from the temple"
           />
-          <div className="bg-white rounded-xl p-8 border-2 border-primary/5 shadow-warm relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-1 h-full bg-accent" />
-            <div className="flex items-start gap-4">
-              <div className="p-3 bg-accent/10 rounded-full text-accent hidden md:block">
-                <Info className="w-6 h-6" />
-              </div>
-              <div>
-                <h2 className="font-serif text-xl font-semibold text-text-primary mb-2">
-                  Temple Announcements
-                </h2>
-                <p className="text-text-secondary leading-relaxed">
-                  Stay connected with Vishnu Mandir, Tampa through our latest
-                  announcements. We regularly update our community about upcoming
-                  festivals, special puja services, cultural events, and temple
-                  activities. Check back regularly or subscribe to our newsletter
-                  to receive updates directly.
-                </p>
+          {sortedAnnouncements.length > 0 ? (
+            <div className="space-y-4">
+              {sortedAnnouncements.map((announcement) => (
+                <AnnouncementCard
+                  key={announcement.id}
+                  announcement={announcement}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white rounded-xl p-8 border-2 border-primary/5 shadow-warm relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-1 h-full bg-accent" />
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-accent/10 rounded-full text-accent hidden md:block">
+                  <Info className="w-6 h-6" />
+                </div>
+                <div>
+                  <h2 className="font-serif text-xl font-semibold text-text-primary mb-2">
+                    Temple Announcements
+                  </h2>
+                  <p className="text-text-secondary leading-relaxed">
+                    Stay connected with Vishnu Mandir, Tampa through our latest
+                    announcements. We regularly update our community about upcoming
+                    festivals, special puja services, cultural events, and temple
+                    activities. Check back regularly or subscribe to our newsletter
+                    to receive updates directly.
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </section>
 
         {/* Upcoming Festivals/Events */}
@@ -125,66 +172,74 @@ export default function HomePage() {
             title="Upcoming Festivals & Events"
             subtitle="Join us in celebration and prayer"
           />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                title: "Major Festivals",
-                description:
-                  "Join us in celebrating major Hindu festivals including Diwali, Navratri, Janmashtami, and more. Each festival brings our community together in prayer, celebration, and devotion.",
-                href: "/religious/festivals",
-                image: "/images/home/event-major-festivals.jpg",
-                imageAlt: "Major Hindu festivals celebration at Vishnu Mandir, Tampa",
-                linkClass: "text-primary font-medium hover:text-primary/80",
-              },
-              {
-                title: "Cultural Programs",
-                description:
-                  "Experience our rich cultural heritage through music, dance, drama, and traditional performances. These programs celebrate our traditions and bring families together.",
-                href: "/cultural",
-                image: "/images/home/event-cultural-programs.jpg",
-                imageAlt: "Cultural programs at Vishnu Mandir, Tampa",
-                linkClass: "text-secondary font-medium hover:text-secondary/80",
-              },
-              {
-                title: "Educational Classes",
-                description:
-                  "Learn Sanskrit, Hindu scriptures, music, and cultural arts through our educational programs designed for children, youth, and adults.",
-                href: "/education/classes",
-                image: "/images/home/event-educational-classes.jpg",
-                imageAlt: "Educational classes at Vishnu Mandir, Tampa",
-                linkClass: "text-accent font-medium hover:text-accent/80",
-              },
-            ].map((card, i) => (
-              <div
-                key={i}
-                className="group bg-white rounded-xl overflow-hidden border border-border hover:border-accent/50 shadow-md hover:shadow-warm transition-all duration-300"
-              >
-                <div className="relative h-48 overflow-hidden">
-                  <Image
-                    src={card.image}
-                    alt={card.imageAlt}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  />
+          {futureEvents.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {futureEvents.map((event) => (
+                <EventCard key={event.id} event={event} showDescription={false} />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[
+                {
+                  title: "Major Festivals",
+                  description:
+                    "Join us in celebrating major Hindu festivals including Diwali, Navratri, Janmashtami, and more. Each festival brings our community together in prayer, celebration, and devotion.",
+                  href: "/religious/festivals",
+                  image: "/images/home/event-major-festivals.jpg",
+                  imageAlt: "Major Hindu festivals celebration at Vishnu Mandir, Tampa",
+                  linkClass: "text-primary font-medium hover:text-primary/80",
+                },
+                {
+                  title: "Cultural Programs",
+                  description:
+                    "Experience our rich cultural heritage through music, dance, drama, and traditional performances. These programs celebrate our traditions and bring families together.",
+                  href: "/cultural",
+                  image: "/images/home/event-cultural-programs.jpg",
+                  imageAlt: "Cultural programs at Vishnu Mandir, Tampa",
+                  linkClass: "text-secondary font-medium hover:text-secondary/80",
+                },
+                {
+                  title: "Educational Classes",
+                  description:
+                    "Learn Sanskrit, Hindu scriptures, music, and cultural arts through our educational programs designed for children, youth, and adults.",
+                  href: "/education/classes",
+                  image: "/images/home/event-educational-classes.jpg",
+                  imageAlt: "Educational classes at Vishnu Mandir, Tampa",
+                  linkClass: "text-accent font-medium hover:text-accent/80",
+                },
+              ].map((card, i) => (
+                <div
+                  key={i}
+                  className="group bg-white rounded-xl overflow-hidden border border-border hover:border-accent/50 shadow-md hover:shadow-warm transition-all duration-300"
+                >
+                  <div className="relative h-48 overflow-hidden">
+                    <Image
+                      src={card.image}
+                      alt={card.imageAlt}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    />
+                  </div>
+                  <div className="p-6">
+                    <h3 className="font-serif text-2xl font-semibold text-text-primary mb-2 group-hover:text-primary transition-colors">
+                      {card.title}
+                    </h3>
+                    <p className="text-text-secondary mb-4 line-clamp-2">
+                      {card.description}
+                    </p>
+                    <Link
+                      href={card.href}
+                      className={`inline-flex items-center transition-colors ${card.linkClass}`}
+                    >
+                      Learn More <ArrowRight className="w-4 h-4 ml-1" />
+                    </Link>
+                  </div>
                 </div>
-                <div className="p-6">
-                  <h3 className="font-serif text-2xl font-semibold text-text-primary mb-2 group-hover:text-primary transition-colors">
-                    {card.title}
-                  </h3>
-                  <p className="text-text-secondary mb-4 line-clamp-2">
-                    {card.description}
-                  </p>
-                  <Link
-                    href={card.href}
-                    className={`inline-flex items-center transition-colors ${card.linkClass}`}
-                  >
-                    Learn More <ArrowRight className="w-4 h-4 ml-1" />
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Quick Links */}

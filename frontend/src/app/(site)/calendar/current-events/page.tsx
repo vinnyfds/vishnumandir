@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { generateWebPageSchema } from "@/lib/seo";
 import { Calendar, Clock, MapPin } from "lucide-react";
+import { fetchEvents } from "@/lib/strapi";
+import { EventList } from "@/components/shared/EventList";
+import { isFutureEvent } from "@/lib/strapi-utils";
 
 export const metadata: Metadata = {
   title: "Current Events | Vishnu Mandir, Tampa - Upcoming Events & Activities",
@@ -20,11 +23,24 @@ export const metadata: Metadata = {
   },
 };
 
+// ISR revalidation: 5 minutes
+export const revalidate = 300;
+
 /**
  * Current Events page - Upcoming events and activities.
  * @returns {JSX.Element} The rendered current events page
  */
-export default function CurrentEventsPage() {
+export default async function CurrentEventsPage() {
+  // Fetch all published events
+  const allEvents = await fetchEvents({
+    publishedAt: true,
+    sort: "date:asc",
+  });
+
+  // Filter for future events only
+  const futureEvents = allEvents.filter((event) =>
+    isFutureEvent(event.attributes.date, event.attributes.startTime)
+  );
   const structuredData = generateWebPageSchema({
     name: "Current Events",
     description:
@@ -72,21 +88,15 @@ export default function CurrentEventsPage() {
           </div>
         </section>
 
-        {/* Events Placeholder */}
+        {/* Events List */}
         <section className="bg-white rounded-xl p-8 border-2 border-primary/5 shadow-warm mb-8">
           <h2 className="font-serif text-2xl font-semibold text-text-primary mb-6">
             Upcoming Events
           </h2>
-          <div className="text-center py-12">
-            <Calendar className="w-16 h-16 text-primary/40 mx-auto mb-4" />
-            <p className="text-text-secondary mb-4">
-              Event listings will be displayed here. Check back soon for
-              upcoming events, or contact us for current event information.
-            </p>
-            <p className="text-text-secondary text-sm">
-              Events are regularly updated, especially during festival seasons.
-            </p>
-          </div>
+          <EventList
+            events={futureEvents}
+            emptyMessage="Event listings will be displayed here. Check back soon for upcoming events, or contact us for current event information."
+          />
         </section>
 
         {/* Event Categories */}

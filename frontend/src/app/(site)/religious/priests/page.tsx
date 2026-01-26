@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { generateWebPageSchema } from "@/lib/seo";
 import { Users, Phone, Mail } from "lucide-react";
+import { fetchPriests } from "@/lib/strapi";
+import { PriestCard } from "@/components/shared/PriestCard";
 
 export const metadata: Metadata = {
   title: "Our Priests | Vishnu Mandir, Tampa - Temple Priests & Services",
@@ -21,11 +22,14 @@ export const metadata: Metadata = {
   },
 };
 
+// ISR revalidation: 1 hour (priests change less frequently)
+export const revalidate = 3600;
+
 /**
  * Priests page - Profiles of temple priests.
  * @returns {JSX.Element} The rendered priests page
  */
-export default function PriestsPage() {
+export default async function PriestsPage() {
   const structuredData = generateWebPageSchema({
     name: "Our Priests",
     description:
@@ -33,44 +37,8 @@ export default function PriestsPage() {
     url: "/religious/priests",
   });
 
-  const priests = [
-    {
-      name: "Pt. Ganga",
-      image: "/images/Preists/pt ganga.jpeg",
-      bio: "Experienced priest dedicated to serving the community with traditional Vedic practices and spiritual guidance.",
-      specialties: [
-        "Daily Puja Services",
-        "Havans (Fire Rituals)",
-        "Marriage Ceremonies (Vivah)",
-        "Life-cycle Ceremonies",
-      ],
-      contact: "Available for consultation and services",
-    },
-    {
-      name: "Pt. Lal Singh",
-      image: "/images/Preists/Pt Lal Singh.png",
-      bio: "Knowledgeable priest specializing in Vedic rituals, special deity pujas, and spiritual counseling for devotees.",
-      specialties: [
-        "Special Deity Pujas",
-        "Festival Ceremonies",
-        "Memorial Services (Shradham)",
-        "Spiritual Guidance",
-      ],
-      contact: "Available for consultation and services",
-    },
-    {
-      name: "Pt. L. Mehta",
-      image: "/images/Preists/Ptl Mehta.png",
-      bio: "Devoted priest with expertise in traditional Hindu ceremonies, daily Aarti, and community spiritual services.",
-      specialties: [
-        "Daily Aarti",
-        "Bhoomi Pujan",
-        "Namakaran Ceremonies",
-        "Yagyopaveet (Thread Ceremony)",
-      ],
-      contact: "Available for consultation and services",
-    },
-  ];
+  // Fetch priests from Strapi
+  const priests = await fetchPriests();
 
   return (
     <>
@@ -118,45 +86,21 @@ export default function PriestsPage() {
           <h2 className="font-serif text-3xl font-semibold text-text-primary mb-8">
             Meet Our Priests
           </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {priests.map((priest, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-xl overflow-hidden border-2 border-primary/5 shadow-warm hover:shadow-md transition-shadow"
-              >
-                <div className="relative h-64">
-                  <Image
-                    src={priest.image}
-                    alt={`${priest.name} - priest at Vishnu Mandir, Tampa`}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  />
-                </div>
-                <div className="p-6">
-                  <h3 className="font-display text-2xl font-bold text-text-primary mb-4">
-                    {priest.name}
-                  </h3>
-                  <p className="text-text-secondary leading-relaxed mb-4">
-                    {priest.bio}
-                  </p>
-                  <div className="bg-primary/5 rounded-lg p-4 mb-4">
-                    <h4 className="font-semibold text-text-primary mb-2 text-sm">
-                      Specialties
-                    </h4>
-                    <ul className="list-disc list-inside space-y-1 text-text-secondary text-sm">
-                      {priest.specialties.map((specialty, idx) => (
-                        <li key={idx}>{specialty}</li>
-                      ))}
-                    </ul>
-                  </div>
-                  <p className="text-text-secondary text-sm italic">
-                    {priest.contact}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+          {priests.length > 0 ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {priests.map((priest) => (
+                <PriestCard key={priest.id} priest={priest} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <Users className="w-16 h-16 text-primary/40 mx-auto mb-4" />
+              <p className="text-text-secondary">
+                Priest profiles will be listed here. Check back soon or contact
+                us for information about our priests.
+              </p>
+            </div>
+          )}
         </section>
 
         {/* Priest Services */}

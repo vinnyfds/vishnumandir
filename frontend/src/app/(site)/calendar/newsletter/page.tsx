@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { generateWebPageSchema } from "@/lib/seo";
 import { Mail, FileText } from "lucide-react";
+import { fetchNewsletters } from "@/lib/strapi";
+import { NewsletterCard } from "@/components/shared/NewsletterCard";
 
 export const metadata: Metadata = {
   title: "Newsletter | Vishnu Mandir, Tampa - Archive & Subscription",
@@ -20,17 +22,23 @@ export const metadata: Metadata = {
   },
 };
 
+// ISR revalidation: 1 hour (newsletters are published periodically)
+export const revalidate = 3600;
+
 /**
  * Newsletter page - Temple newsletter archive.
  * @returns {JSX.Element} The rendered newsletter page
  */
-export default function NewsletterPage() {
+export default async function NewsletterPage() {
   const structuredData = generateWebPageSchema({
     name: "Newsletter",
     description:
       "Newsletter archive and subscription for Vishnu Mandir, Tampa",
     url: "/calendar/newsletter",
   });
+
+  // Fetch newsletters from Strapi
+  const newsletters = await fetchNewsletters();
 
   return (
     <>
@@ -79,17 +87,25 @@ export default function NewsletterPage() {
           <h2 className="font-serif text-2xl font-semibold text-text-primary mb-6">
             Newsletter Archive
           </h2>
-          <div className="text-center py-12">
-            <FileText className="w-16 h-16 text-primary/40 mx-auto mb-4" />
-            <p className="text-text-secondary mb-4">
-              Newsletter archive will be available here. Past issues will be
-              accessible as PDF downloads.
-            </p>
-            <p className="text-text-secondary text-sm">
-              Check back soon for archived newsletters, or contact us to receive
-              past issues.
-            </p>
-          </div>
+          {newsletters.length > 0 ? (
+            <div className="space-y-4">
+              {newsletters.map((newsletter) => (
+                <NewsletterCard key={newsletter.id} newsletter={newsletter} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <FileText className="w-16 h-16 text-primary/40 mx-auto mb-4" />
+              <p className="text-text-secondary mb-4">
+                Newsletter archive will be available here. Past issues will be
+                accessible as PDF downloads.
+              </p>
+              <p className="text-text-secondary text-sm">
+                Check back soon for archived newsletters, or contact us to receive
+                past issues.
+              </p>
+            </div>
+          )}
         </section>
 
         {/* Subscribe Section */}

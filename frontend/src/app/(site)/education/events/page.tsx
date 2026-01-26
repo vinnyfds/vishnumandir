@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { generateWebPageSchema } from "@/lib/seo";
 import { Calendar, Users } from "lucide-react";
+import { fetchEvents } from "@/lib/strapi";
+import { EventList } from "@/components/shared/EventList";
+import { isFutureEvent } from "@/lib/strapi-utils";
 
 export const metadata: Metadata = {
   title: "Educational Events | Vishnu Mandir, Tampa - Workshops & Seminars",
@@ -20,11 +23,25 @@ export const metadata: Metadata = {
   },
 };
 
+// ISR revalidation: 5 minutes
+export const revalidate = 300;
+
 /**
  * Education Events page - Educational events and workshops.
  * @returns {JSX.Element} The rendered education events page
  */
-export default function EducationEventsPage() {
+export default async function EducationEventsPage() {
+  // Fetch educational events
+  const allEvents = await fetchEvents({
+    category: "Educational",
+    publishedAt: true,
+    sort: "date:asc",
+  });
+
+  // Filter for future events only
+  const futureEvents = allEvents.filter((event) =>
+    isFutureEvent(event.attributes.date, event.attributes.startTime)
+  );
   const structuredData = generateWebPageSchema({
     name: "Educational Events",
     description:
@@ -72,22 +89,15 @@ export default function EducationEventsPage() {
           </div>
         </section>
 
-        {/* Events Placeholder */}
+        {/* Events List */}
         <section className="bg-white rounded-xl p-8 border-2 border-primary/5 shadow-warm mb-8">
           <h2 className="font-serif text-2xl font-semibold text-text-primary mb-6">
             Upcoming Educational Events
           </h2>
-          <div className="text-center py-12">
-            <Calendar className="w-16 h-16 text-primary/40 mx-auto mb-4" />
-            <p className="text-text-secondary mb-4">
-              Educational events will be listed here. Check back soon for
-              upcoming workshops, seminars, and learning sessions.
-            </p>
-            <p className="text-text-secondary text-sm">
-              Events are regularly updated. Contact us for current event
-              information.
-            </p>
-          </div>
+          <EventList
+            events={futureEvents}
+            emptyMessage="Educational events will be listed here. Check back soon for upcoming workshops, seminars, and learning sessions."
+          />
         </section>
 
         {/* Event Types */}

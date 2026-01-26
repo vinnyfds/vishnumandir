@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { generateServiceSchema, generateWebPageSchema } from "@/lib/seo";
 import { Sparkles, MapPin, DollarSign, FileText } from "lucide-react";
+import { fetchPujaServices } from "@/lib/strapi";
+import { PujaServiceCard } from "@/components/shared/PujaServiceCard";
 
 export const metadata: Metadata = {
   title: "Puja Services | Vishnu Mandir, Tampa - Catalog & Pricing",
@@ -22,11 +24,14 @@ export const metadata: Metadata = {
   },
 };
 
+// ISR revalidation: 1 hour (services change less frequently)
+export const revalidate = 3600;
+
 /**
  * Puja Services page - Catalog of available puja services.
  * @returns {JSX.Element} The rendered puja services page
  */
-export default function PujaServicesPage() {
+export default async function PujaServicesPage() {
   const structuredData = generateWebPageSchema({
     name: "Puja Services",
     description:
@@ -34,71 +39,8 @@ export default function PujaServicesPage() {
     url: "/religious/puja-services",
   });
 
-  const pujaServices = [
-    {
-      name: "Daily Aarti",
-      description:
-        "Regular daily prayer ceremony with lamps, incense, and devotional songs. Performed morning and evening.",
-      location: "In Temple",
-      price: "Donation",
-    },
-    {
-      name: "Havan (Fire Ritual)",
-      description:
-        "Sacred fire ritual performed for purification, blessings, and special occasions. Can be performed for individuals or families.",
-      location: "In Temple or Off-site",
-      price: "Contact for pricing",
-    },
-    {
-      name: "Satyanarayan Katha",
-      description:
-        "Narration of the Satyanarayan story with puja, performed for prosperity, well-being, and fulfillment of wishes.",
-      location: "In Temple or Off-site",
-      price: "Contact for pricing",
-    },
-    {
-      name: "Namakaran (Naming Ceremony)",
-      description:
-        "Traditional Hindu naming ceremony for newborns, performed with prayers and blessings for the child's future.",
-      location: "In Temple or Off-site",
-      price: "Contact for pricing",
-    },
-    {
-      name: "Yagyopaveet (Thread Ceremony)",
-      description:
-        "Sacred thread initiation ceremony (Upanayana) for young boys, marking their entry into formal Vedic studies.",
-      location: "In Temple or Off-site",
-      price: "Contact for pricing",
-    },
-    {
-      name: "Vivah (Marriage Ceremony)",
-      description:
-        "Traditional Hindu marriage ceremony performed according to Vedic traditions with all sacred rituals.",
-      location: "In Temple or Off-site",
-      price: "Contact for pricing",
-    },
-    {
-      name: "Bhoomi Pujan",
-      description:
-        "Ground-breaking ceremony performed before starting construction or new projects, seeking blessings for success.",
-      location: "On-site",
-      price: "Contact for pricing",
-    },
-    {
-      name: "Shradham (Memorial Service)",
-      description:
-        "Memorial service performed in honor of departed ancestors, offering prayers and offerings for their peace.",
-      location: "In Temple or Off-site",
-      price: "Contact for pricing",
-    },
-    {
-      name: "Special Deity Pujas",
-      description:
-        "Devotional services dedicated to specific deities such as Ganesh, Lakshmi, Saraswati, Hanuman, and others.",
-      location: "In Temple",
-      price: "Contact for pricing",
-    },
-  ];
+  // Fetch puja services from Strapi
+  const pujaServices = await fetchPujaServices();
 
   return (
     <>
@@ -143,34 +85,21 @@ export default function PujaServicesPage() {
         </section>
 
         {/* Services Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {pujaServices.map((service, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-xl p-6 border-2 border-primary/5 shadow-warm hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-center gap-2 mb-3">
-                <Sparkles className="w-5 h-5 text-primary" />
-                <h3 className="font-serif text-xl font-semibold text-text-primary">
-                  {service.name}
-                </h3>
-              </div>
-              <p className="text-text-secondary text-sm leading-relaxed mb-4">
-                {service.description}
-              </p>
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center gap-2 text-text-secondary">
-                  <MapPin className="w-4 h-4 text-primary" />
-                  <span>{service.location}</span>
-                </div>
-                <div className="flex items-center gap-2 text-text-secondary">
-                  <DollarSign className="w-4 h-4 text-primary" />
-                  <span>{service.price}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        {pujaServices.length > 0 ? (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            {pujaServices.map((service) => (
+              <PujaServiceCard key={service.id} service={service} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 mb-12">
+            <Sparkles className="w-16 h-16 text-primary/40 mx-auto mb-4" />
+            <p className="text-text-secondary">
+              Puja services will be listed here. Check back soon or contact us
+              for available services.
+            </p>
+          </div>
+        )}
 
         {/* How to Sponsor */}
         <section className="bg-white rounded-xl p-8 border-2 border-primary/5 shadow-warm mb-8">

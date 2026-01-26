@@ -11,6 +11,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Added
+- feat(frontend): Complete Strapi CMS integration for all content types - frontend/src/lib/strapi.ts, frontend/src/types/strapi.ts, frontend/src/lib/strapi-utils.ts
+- feat(components): Created reusable display components for Strapi content - EventCard, EventList, PujaServiceCard, PriestCard, AnnouncementCard, NewsletterCard - frontend/src/components/shared/
+- feat(pages): Integrated Strapi content fetching into all relevant pages:
+  - /education/events - Fetches and displays Educational category events
+  - /calendar/current-events - Fetches and displays all published events
+  - Home page - Fetches and displays announcements and featured events
+  - /religious/puja-services - Fetches and displays puja services from Strapi
+  - /religious/priests - Fetches and displays priest profiles from Strapi
+  - /calendar/newsletter - Fetches and displays newsletter archive from Strapi
+- feat(caching): Implemented ISR (Incremental Static Regeneration) with appropriate revalidation times:
+  - Events and Announcements: 5 minutes (300s)
+  - Puja Services, Priests, Newsletters: 1 hour (3600s)
+
+### Changed
+- refactor(pages): Converted static pages to async Server Components that fetch from Strapi CMS
+- refactor(components): Updated all content display components to use Strapi data instead of hardcoded content
+
+## [Unreleased]
+
+### Added
 - feat(integration): Added Strapi integration for form submissions viewing - Created Strapi content types for puja-sponsorship, facility-request, and form-submission - Created strapi.service.ts in backend to sync submissions to Strapi via REST API - Updated form submission routes to sync data to Strapi after PostgreSQL write (non-blocking) - Added axios dependency to backend for Strapi API calls - Form submissions now visible in Strapi admin panel while PostgreSQL remains source of truth - Fixed Resend client initialization to handle missing API key gracefully - Committed and deployed code to servers, content types registered in Strapi - cms/src/api/puja-sponsorship/content-types/puja-sponsorship/schema.json, cms/src/api/facility-request/content-types/facility-request/schema.json, cms/src/api/form-submission/content-types/form-submission/schema.json, backend/src/services/strapi.service.ts, backend/src/api/v1/forms.routes.ts, backend/src/utils/resend.client.ts, backend/package.json, docs/deployment/STRAPI_FORM_SUBMISSIONS_SETUP.md
 - feat(deployment): Deployed Strapi CMS to production Lightsail instance - Created production .env file with generated security keys (APP_KEYS, JWT secrets, encryption keys) - Configured AWS S3 credentials for media storage - Set up database connection settings (PostgreSQL on Lightsail) - Restarted PM2 service with updated environment - Service ready pending database password configuration - docs/deployment/DEPLOYMENT_STATUS.md
 - fix(deployment): Fixed CMS domain connectivity by opening port 1337 in Lightsail firewall - Opened port 1337 in Lightsail instance firewall using AWS CLI - Verified firewall configuration and service listening status - Tested connectivity via both direct IP and domain name - CMS now accessible at http://cms.vishnumandirtampa.com:1337 - docs/deployment/DEPLOYMENT_STATUS.md
