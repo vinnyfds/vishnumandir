@@ -1,0 +1,63 @@
+{
+  "kind": "collectionType",
+  "collectionName": "puja_sponsorships",
+  "info": {
+    "singularName": "puja-sponsorship",
+    "pluralName": "puja-sponsorships",
+    "displayName": "Puja Sponsorship",
+    "description": "Puja sponsorship form submissions"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "pujaId": {
+      "type": "string",
+      "required": true
+    },
+    "pujaServiceName": {
+      "type": "string",
+      "required": true
+    },
+    "sponsorName": {
+      "type": "string",
+      "required": true
+    },
+    "sponsorEmail": {
+      "type": "email",
+      "required": true
+    },
+    "sponsorPhone": {
+      "type": "string"
+    },
+    "requestedDate": {
+      "type": "datetime",
+      "required": true
+    },
+    "location": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "text"
+    },
+    "attachmentUrl": {
+      "type": "string"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["pending", "confirmed", "completed"],
+      "default": "pending",
+      "required": true
+    },
+    "transactionId": {
+      "type": "string",
+      "unique": true
+    },
+    "postgresId": {
+      "type": "string",
+      "unique": true,
+      "description": "ID from PostgreSQL database (source of truth)"
+    }
+  }
+}

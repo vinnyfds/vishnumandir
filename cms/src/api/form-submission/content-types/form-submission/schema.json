@@ -1,0 +1,43 @@
+{
+  "kind": "collectionType",
+  "collectionName": "form_submissions",
+  "info": {
+    "singularName": "form-submission",
+    "pluralName": "form-submissions",
+    "displayName": "Form Submission",
+    "description": "Generic form submissions (donation statement, change of address, email subscription)"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "formType": {
+      "type": "enumeration",
+      "enum": ["DONATION_STATEMENT", "CHANGE_OF_ADDRESS", "EMAIL_SUBSCRIPTION"],
+      "required": true
+    },
+    "email": {
+      "type": "email",
+      "required": true
+    },
+    "name": {
+      "type": "string"
+    },
+    "payload": {
+      "type": "json",
+      "required": true,
+      "description": "Form-specific fields stored as JSON"
+    },
+    "transactionId": {
+      "type": "string",
+      "unique": true,
+      "required": true
+    },
+    "postgresId": {
+      "type": "string",
+      "unique": true,
+      "description": "ID from PostgreSQL database (source of truth)"
+    }
+  }
+}

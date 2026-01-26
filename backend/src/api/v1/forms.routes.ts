@@ -4,6 +4,11 @@ import { Router } from "express";
 import { uploadOptionalAttachment } from "../../config/multer";
 import { prisma } from "../../utils/prisma.client";
 import { sendEmail } from "../../services/email.service";
+import {
+  createPujaSponsorship,
+  createFacilityRequest,
+  createFormSubmission,
+} from "../../services/strapi.service";
 import { success, error as errorResponse, zodIssuesToContractErrors } from "../../utils/responses";
 import { sponsorshipSchema, facilityRequestSchema } from "../../schemas/forms";
 import {
@@ -72,7 +77,7 @@ router.post(
         .join("\n\n")
         .trim() || null;
 
-      await prisma.pujaSponsorship.create({
+      const sponsorship = await prisma.pujaSponsorship.create({
         data: {
           pujaId: data.pujaId,
           pujaServiceName: data.pujaId,
@@ -85,6 +90,23 @@ router.post(
           status: "pending",
           transactionId,
         },
+      });
+
+      // Sync to Strapi (non-blocking)
+      createPujaSponsorship({
+        pujaId: data.pujaId,
+        pujaServiceName: data.pujaId,
+        sponsorName: data.devoteeName,
+        sponsorEmail: data.email,
+        sponsorPhone: data.phone,
+        requestedDate: requestedDate.toISOString(),
+        location: data.location || undefined,
+        notes: notes || undefined,
+        status: "pending",
+        transactionId,
+        postgresId: sponsorship.id,
+      }).catch((err) => {
+        console.error("[forms.sponsorship] Strapi sync error (non-blocking):", err);
       });
 
       const adminTo = process.env.ADMIN_EMAIL_ADDRESS;
@@ -154,7 +176,7 @@ router.post("/facility-request", async (req: Request, res: Response, next: (err?
 
     const transactionId = `req_${uuidv4().replace(/-/g, "")}`;
 
-    await prisma.facilityRequest.create({
+    const facilityRequest = await prisma.facilityRequest.create({
       data: {
         requesterName: data.contactName,
         requesterEmail: data.email,
@@ -170,6 +192,26 @@ router.post("/facility-request", async (req: Request, res: Response, next: (err?
         status: "pending",
         transactionId,
       },
+    });
+
+    // Sync to Strapi (non-blocking)
+    createFacilityRequest({
+      requesterName: data.contactName,
+      requesterEmail: data.email,
+      requesterPhone: data.phone,
+      eventType: data.eventType,
+      eventName: undefined,
+      eventDate: eventDate.toISOString(),
+      startTime: data.startTime || undefined,
+      endTime: data.endTime || undefined,
+      numberOfGuests: data.numberOfGuests,
+      details: data.details || undefined,
+      requirements: data.requirements || undefined,
+      status: "pending",
+      transactionId,
+      postgresId: facilityRequest.id,
+    }).catch((err) => {
+      console.error("[forms.facility-request] Strapi sync error (non-blocking):", err);
     });
 
     const adminTo = process.env.ADMIN_EMAIL_ADDRESS;
@@ -229,9 +271,22 @@ async function submitOptionalForm(
   try {
     const transactionId = `req_${uuidv4().replace(/-/g, "")}`;
     const payload = data as object;
-    await prisma.formSubmission.create({
+    const formSubmission = await prisma.formSubmission.create({
       data: { formType, email: data.email, payload, transactionId },
     });
+
+    // Sync to Strapi (non-blocking)
+    createFormSubmission({
+      formType,
+      email: data.email,
+      name: data.name || undefined,
+      payload,
+      transactionId,
+      postgresId: formSubmission.id,
+    }).catch((err) => {
+      console.error(`[forms.${formType}] Strapi sync error (non-blocking):`, err);
+    });
+
     const adminTo = process.env.ADMIN_EMAIL_ADDRESS;
     if (adminTo?.trim()) {
       await sendEmail({

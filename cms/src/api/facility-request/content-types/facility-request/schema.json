@@ -1,0 +1,70 @@
+{
+  "kind": "collectionType",
+  "collectionName": "facility_requests",
+  "info": {
+    "singularName": "facility-request",
+    "pluralName": "facility-requests",
+    "displayName": "Facility Request",
+    "description": "Facility rental request form submissions"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "requesterName": {
+      "type": "string",
+      "required": true
+    },
+    "requesterEmail": {
+      "type": "email",
+      "required": true
+    },
+    "requesterPhone": {
+      "type": "string",
+      "required": true
+    },
+    "eventType": {
+      "type": "string",
+      "required": true
+    },
+    "eventName": {
+      "type": "string"
+    },
+    "eventDate": {
+      "type": "datetime",
+      "required": true
+    },
+    "startTime": {
+      "type": "string"
+    },
+    "endTime": {
+      "type": "string"
+    },
+    "numberOfGuests": {
+      "type": "integer",
+      "required": true
+    },
+    "details": {
+      "type": "text"
+    },
+    "requirements": {
+      "type": "text"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["pending", "approved", "rejected"],
+      "default": "pending",
+      "required": true
+    },
+    "transactionId": {
+      "type": "string",
+      "unique": true
+    },
+    "postgresId": {
+      "type": "string",
+      "unique": true,
+      "description": "ID from PostgreSQL database (source of truth)"
+    }
+  }
+}
