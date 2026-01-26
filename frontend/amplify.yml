@@ -17,7 +17,7 @@ applications:
             - cd frontend
             - pnpm run build
       artifacts:
-        baseDirectory: frontend/.next
+        baseDirectory: .next
         files:
           - '**/*'
       cache:
