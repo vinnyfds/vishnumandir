@@ -11,10 +11,14 @@ import {
   changeOfAddressSchema,
   emailSubscriptionSchema,
 } from "../../schemas/optional-forms";
-import { $Enums } from "@prisma/client";
-
-type FormSubmissionType = $Enums.FormSubmissionType;
-const FormSubmissionType = $Enums.FormSubmissionType;
+// FormSubmissionType enum from Prisma
+// Using string literals to match Prisma enum values
+type FormSubmissionType = "DONATION_STATEMENT" | "CHANGE_OF_ADDRESS" | "EMAIL_SUBSCRIPTION";
+const FormSubmissionType = {
+  DONATION_STATEMENT: "DONATION_STATEMENT" as const,
+  CHANGE_OF_ADDRESS: "CHANGE_OF_ADDRESS" as const,
+  EMAIL_SUBSCRIPTION: "EMAIL_SUBSCRIPTION" as const,
+} as const;
 
 const router = Router();
 
