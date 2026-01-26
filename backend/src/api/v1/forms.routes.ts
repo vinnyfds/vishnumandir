@@ -270,7 +270,7 @@ async function submitOptionalForm(
 ): Promise<Response | void> {
   try {
     const transactionId = `req_${uuidv4().replace(/-/g, "")}`;
-    const payload = data as object;
+    const payload = data as Record<string, unknown>;
     const formSubmission = await prisma.formSubmission.create({
       data: { formType, email: data.email, payload, transactionId },
     });
