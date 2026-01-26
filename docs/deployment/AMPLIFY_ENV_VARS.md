@@ -57,6 +57,10 @@ Set these in AWS Amplify Console > App Settings > Environment Variables
 
 - **`CMS_API_TOKEN`** (Server-side only)
   - Generate from Strapi Admin Panel: Settings → API Tokens → Create new API Token
+  - **Critical:** After creating the token, you MUST configure permissions:
+    - Edit the token → Enable `find` and `findOne` for each content type (Event, Puja Service, Priest, Newsletter, Announcement)
+    - Without these permissions, API calls will return 404 errors
+    - See `docs/deployment/STRAPI_API_PERMISSIONS_FIX.md` for detailed instructions
 
 ### Application
 

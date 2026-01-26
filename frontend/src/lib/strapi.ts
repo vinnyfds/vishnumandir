@@ -57,15 +57,28 @@ async function fetchStrapiContent<T>(
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
       console.error(
         `[strapi] Failed to fetch ${endpoint}:`,
         response.status,
-        response.statusText
+        response.statusText,
+        errorText.substring(0, 200)
       );
       return null;
     }
 
     const data = await response.json();
+    
+    // Debug logging for API responses
+    if (process.env.NODE_ENV === "development") {
+      console.log(`[strapi] Fetched ${endpoint}:`, {
+        hasData: !!data?.data,
+        dataCount: Array.isArray(data?.data) ? data.data.length : data?.data ? 1 : 0,
+        hasError: !!data?.error,
+        error: data?.error,
+      });
+    }
+    
     return data as T;
   } catch (error) {
     console.error(`[strapi] Error fetching ${endpoint}:`, error);
@@ -105,7 +118,30 @@ export async function fetchEvents(filters?: {
   >("events", queryParams);
 
   if (!response || !response.data) {
+    // Debug logging
+    if (process.env.NODE_ENV === "development") {
+      console.log("[strapi] fetchEvents result:", {
+        hasResponse: !!response,
+        hasData: !!response?.data,
+        error: response?.error,
+        filters,
+      });
+    }
     return [];
+  }
+
+  // Debug logging for filtered results
+  if (process.env.NODE_ENV === "development") {
+    console.log("[strapi] fetchEvents filtered:", {
+      totalEvents: response.data.length,
+      category: filters?.category,
+      events: response.data.map((e) => ({
+        title: e.attributes.title,
+        category: e.attributes.category,
+        date: e.attributes.date,
+        published: !!e.attributes.publishedAt,
+      })),
+    });
   }
 
   return response.data;

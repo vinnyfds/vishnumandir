@@ -38,10 +38,35 @@ export default async function EducationEventsPage() {
     sort: "date:asc",
   });
 
+  // Debug logging in development
+  if (process.env.NODE_ENV === "development") {
+    console.log("[education/events] Fetched events:", {
+      total: allEvents.length,
+      events: allEvents.map((e) => ({
+        title: e.attributes.title,
+        category: e.attributes.category,
+        date: e.attributes.date,
+        startTime: e.attributes.startTime,
+        isFuture: isFutureEvent(
+          e.attributes.date,
+          e.attributes.startTime
+        ),
+      })),
+    });
+  }
+
   // Filter for future events only
   const futureEvents = allEvents.filter((event) =>
     isFutureEvent(event.attributes.date, event.attributes.startTime)
   );
+
+  // Debug logging for filtered results
+  if (process.env.NODE_ENV === "development") {
+    console.log("[education/events] Future events:", {
+      total: futureEvents.length,
+      filteredOut: allEvents.length - futureEvents.length,
+    });
+  }
   const structuredData = generateWebPageSchema({
     name: "Educational Events",
     description:
