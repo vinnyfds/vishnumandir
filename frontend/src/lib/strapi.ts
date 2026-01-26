@@ -123,7 +123,6 @@ export async function fetchEvents(filters?: {
       console.log("[strapi] fetchEvents result:", {
         hasResponse: !!response,
         hasData: !!response?.data,
-        error: response?.error,
         filters,
       });
     }
