@@ -11,7 +11,10 @@ import {
   changeOfAddressSchema,
   emailSubscriptionSchema,
 } from "../../schemas/optional-forms";
-import { FormSubmissionType } from "@prisma/client";
+import { $Enums } from "@prisma/client";
+
+type FormSubmissionType = $Enums.FormSubmissionType;
+const FormSubmissionType = $Enums.FormSubmissionType;
 
 const router = Router();
 
