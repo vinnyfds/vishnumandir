@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 - feat(diagnostics): Added debug logging for Strapi API calls - frontend/src/lib/strapi.ts, frontend/src/app/(site)/education/events/page.tsx
 - docs(deployment): Created STRAPI_API_PERMISSIONS_FIX.md with instructions to fix 404 errors - docs/deployment/STRAPI_API_PERMISSIONS_FIX.md
+- docs(deployment): Created STRAPI_API_TROUBLESHOOTING.md with detailed troubleshooting steps - docs/deployment/STRAPI_API_TROUBLESHOOTING.md
 
 ### Fixed
 - fix(images): Fixed squished deity images by maintaining proper aspect ratio - Changed image container from fixed height (h-48) to aspect-square to preserve 1:1 ratio for square deity images - frontend/src/app/(site)/deities/page.tsx
