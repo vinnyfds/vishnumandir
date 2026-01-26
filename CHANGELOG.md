@@ -14,6 +14,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - feat(diagnostics): Added debug logging for Strapi API calls - frontend/src/lib/strapi.ts, frontend/src/app/(site)/education/events/page.tsx
 - docs(deployment): Created STRAPI_API_PERMISSIONS_FIX.md with instructions to fix 404 errors - docs/deployment/STRAPI_API_PERMISSIONS_FIX.md
 - docs(deployment): Created STRAPI_API_TROUBLESHOOTING.md with detailed troubleshooting steps - docs/deployment/STRAPI_API_TROUBLESHOOTING.md
+- docs(deployment): Created STRAPI_FIND_CONTENT_TYPES_IN_PERMISSIONS.md with step-by-step guide to locate content types - docs/deployment/STRAPI_FIND_CONTENT_TYPES_IN_PERMISSIONS.md
+- feat(scripts): Created test-strapi-api.sh script to test all Strapi API endpoints - scripts/test-strapi-api.sh
 
 ### Changed
 - refactor(audio): Replaced om.mp3 with vishnumandir-audio.mp3 and enabled auto-play on page load - Audio now plays automatically when users land on the page (default muted: false), users can still toggle it off - Replaced frontend/public/audio/om.mp3 with frontend/public/audio/vishnumandir-audio.mp3 - Updated OmAudioContext to use new audio file and default to playing - frontend/src/components/audio/OmAudioContext.tsx, frontend/public/audio/vishnumandir-audio.mp3
