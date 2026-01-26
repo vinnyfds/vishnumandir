@@ -45,12 +45,15 @@ export default async function HomePage() {
 
   // Fetch active announcements
   const today = new Date();
-  const announcements = await fetchAnnouncements({
+  const allAnnouncements = await fetchAnnouncements({
     displayUntil: today,
   });
 
+  // Filter out items with missing attributes
+  const validAnnouncements = allAnnouncements.filter((announcement) => announcement?.attributes);
+
   // Sort: High-Priority first, then by publishedAt (newest first)
-  const sortedAnnouncements = [...announcements].sort((a, b) => {
+  const sortedAnnouncements = [...validAnnouncements].sort((a, b) => {
     if (a.attributes.level === "High-Priority" && b.attributes.level !== "High-Priority") {
       return -1;
     }
@@ -68,8 +71,17 @@ export default async function HomePage() {
     sort: "date:asc",
   });
 
-  const futureEvents = allEvents
-    .filter((event) => isFutureEvent(event.attributes.date, event.attributes.startTime))
+  // Filter out items with missing attributes before processing
+  const validEvents = allEvents.filter((event) => event?.attributes);
+
+  const futureEvents = validEvents
+    .filter((event) => {
+      // Guard against undefined date/startTime
+      if (!event.attributes.date || !event.attributes.startTime) {
+        return false;
+      }
+      return isFutureEvent(event.attributes.date, event.attributes.startTime);
+    })
     .slice(0, 6);
   return (
     <>

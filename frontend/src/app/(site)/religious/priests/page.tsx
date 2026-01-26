@@ -38,7 +38,10 @@ export default async function PriestsPage() {
   });
 
   // Fetch priests from Strapi
-  const priests = await fetchPriests();
+  const allPriests = await fetchPriests();
+  
+  // Filter out items with missing attributes
+  const priests = allPriests.filter((priest) => priest?.attributes);
 
   return (
     <>

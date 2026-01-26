@@ -13,6 +13,11 @@ interface PujaServiceCardProps {
  * @returns {JSX.Element} The rendered puja service card
  */
 export function PujaServiceCard({ service }: PujaServiceCardProps) {
+  // Guard against undefined attributes
+  if (!service?.attributes) {
+    return null;
+  }
+
   const { attributes } = service;
   const imageUrl = getStrapiImageUrl(attributes.image);
 

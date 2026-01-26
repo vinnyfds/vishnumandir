@@ -15,6 +15,11 @@ interface EventCardProps {
  * @returns {JSX.Element} The rendered event card
  */
 export function EventCard({ event, showDescription = false }: EventCardProps) {
+  // Guard against undefined attributes
+  if (!event?.attributes) {
+    return null;
+  }
+
   const { attributes } = event;
   const imageUrl = getStrapiImageUrl(attributes.image);
 

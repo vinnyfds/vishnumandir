@@ -40,7 +40,10 @@ export default async function PujaServicesPage() {
   });
 
   // Fetch puja services from Strapi
-  const pujaServices = await fetchPujaServices();
+  const allPujaServices = await fetchPujaServices();
+  
+  // Filter out items with missing attributes
+  const pujaServices = allPujaServices.filter((service) => service?.attributes);
 
   return (
     <>

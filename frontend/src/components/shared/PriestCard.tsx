@@ -13,6 +13,11 @@ interface PriestCardProps {
  * @returns {JSX.Element} The rendered priest card
  */
 export function PriestCard({ priest }: PriestCardProps) {
+  // Guard against undefined attributes
+  if (!priest?.attributes) {
+    return null;
+  }
+
   const { attributes } = priest;
   const imageUrl = getStrapiImageUrl(attributes.profileImage);
 

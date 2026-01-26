@@ -13,6 +13,11 @@ interface AnnouncementCardProps {
 export function AnnouncementCard({
   announcement,
 }: AnnouncementCardProps) {
+  // Guard against undefined attributes
+  if (!announcement?.attributes) {
+    return null;
+  }
+
   const { attributes } = announcement;
   const isHighPriority = attributes.level === "High-Priority";
 

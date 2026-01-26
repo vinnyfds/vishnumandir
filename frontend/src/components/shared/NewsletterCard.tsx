@@ -13,6 +13,11 @@ interface NewsletterCardProps {
  * @returns {JSX.Element} The rendered newsletter card
  */
 export function NewsletterCard({ newsletter }: NewsletterCardProps) {
+  // Guard against undefined attributes
+  if (!newsletter?.attributes) {
+    return null;
+  }
+
   const { attributes } = newsletter;
   const fileUrl = getStrapiFileUrl(attributes.file);
   const publicationDate = formatDate(attributes.publicationDate);

@@ -38,9 +38,13 @@ export default async function CurrentEventsPage() {
   });
 
   // Filter for future events only
-  const futureEvents = allEvents.filter((event) =>
-    isFutureEvent(event.attributes.date, event.attributes.startTime)
-  );
+  const futureEvents = allEvents.filter((event) => {
+    // Guard against undefined attributes or missing date/startTime
+    if (!event?.attributes?.date || !event?.attributes?.startTime) {
+      return false;
+    }
+    return isFutureEvent(event.attributes.date, event.attributes.startTime);
+  });
   const structuredData = generateWebPageSchema({
     name: "Current Events",
     description:
