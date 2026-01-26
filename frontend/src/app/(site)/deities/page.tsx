@@ -125,7 +125,7 @@ export default function DeitiesPage() {
               className="bg-white rounded-xl overflow-hidden border-2 border-primary/5 shadow-warm hover:shadow-md transition-shadow"
             >
               {deity.image ? (
-                <div className="relative h-48">
+                <div className="relative w-full aspect-square">
                   <Image
                     src={deity.image}
                     alt={`${deity.name} - deity enshrined at Vishnu Mandir, Tampa`}

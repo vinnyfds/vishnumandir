@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Fixed
+- fix(images): Fixed squished deity images by maintaining proper aspect ratio - Changed image container from fixed height (h-48) to aspect-square to preserve 1:1 ratio for square deity images - frontend/src/app/(site)/deities/page.tsx
+- fix(images): Configured Next.js to allow Strapi CMS image domains - Added remotePatterns to next.config.ts for cms.vishnumandirtampa.com and localhost:1337 to enable priest images and other Strapi media to load correctly - frontend/next.config.ts
+
 ### Added
 - feat(frontend): Complete Strapi CMS integration for all content types - frontend/src/lib/strapi.ts, frontend/src/types/strapi.ts, frontend/src/lib/strapi-utils.ts
 - feat(components): Created reusable display components for Strapi content - EventCard, EventList, PujaServiceCard, PriestCard, AnnouncementCard, NewsletterCard - frontend/src/components/shared/
