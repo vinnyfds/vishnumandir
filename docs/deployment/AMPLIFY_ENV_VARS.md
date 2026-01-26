@@ -51,8 +51,8 @@ Set these in AWS Amplify Console > App Settings > Environment Variables
 ### Content Management System (Strapi)
 
 - **`CMS_API_URL`** (Server-side only)
-  - Value: `http://44.202.153.84:1337/api`
-  - Or use domain: `http://cms.vishnumandirtampa.com:1337/api` (if DNS configured)
+  - Value: `https://cms.vishnumandirtampa.com/api`
+  - **Note:** SSL certificate is configured. Use HTTPS (no port number needed)
 
 - **`CMS_API_TOKEN`** (Server-side only)
   - Generate from Strapi Admin Panel: Settings → API Tokens → Create new API Token
