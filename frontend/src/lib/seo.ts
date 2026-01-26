@@ -12,7 +12,7 @@ export const TEMPLE_ORG = {
   "@type": "Organization",
   name: "Vishnu Mandir, Tampa",
   url: BASE_URL,
-  logo: `${BASE_URL}/images/VISHNUMANDIR%20LOGO%20(3).png`,
+  logo: `${BASE_URL}/images/vishnumandir-logo.png`,
   address: {
     "@type": "PostalAddress",
     streetAddress: "5803 Lynn Road",

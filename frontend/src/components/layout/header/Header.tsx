@@ -60,7 +60,7 @@ export function Header() {
           <div className="relative h-12 md:h-14 w-36 md:w-44 shrink-0">
             <Link href="/" className="block relative h-full w-full">
               <Image
-                src="/images/VISHNUMANDIR%20LOGO%20(3).png"
+                src="/images/vishnumandir-logo.png"
                 alt="Vishnu Mandir, Tampa - Hindu Temple & Community Center"
                 fill
                 priority
