@@ -43,6 +43,7 @@ SSL certificate has been successfully configured for `cms.vishnumandirtampa.com`
 5. ✅ Requested and obtained SSL certificate
 6. ✅ Updated Strapi `SERVER_URL` and `PUBLIC_URL` to HTTPS
 7. ✅ Restarted Strapi service with updated environment
+8. ✅ Closed port 1337 from public access (security hardening)
 
 ## Certificate Renewal
 
@@ -107,9 +108,27 @@ nginx and Strapi are configured with security headers:
 - `X-Frame-Options: SAMEORIGIN`
 - Content Security Policy (CSP)
 
+## Security Configuration
+
+### Port Access
+- **Port 1337:** Closed from public access (only accessible from localhost)
+- **Port 80:** Open (HTTP redirects to HTTPS)
+- **Port 443:** Open (HTTPS with SSL certificate)
+
+**Important:** Port 1337 is NOT publicly accessible. All access must go through nginx on port 443 (HTTPS). This ensures:
+- All traffic is encrypted with SSL
+- Strapi is not directly exposed to the internet
+- Single entry point for security monitoring
+
+### Access Requirements
+- **Admin Panel:** Must use `https://cms.vishnumandirtampa.com/admin` (no port number)
+- **API Endpoint:** Must use `https://cms.vishnumandirtampa.com/api` (no port number)
+- **Direct Port Access:** `http://cms.vishnumandirtampa.com:1337` will fail (port closed)
+
 ## Notes
 
-- Strapi continues to run on port 1337 internally
+- Strapi continues to run on port 1337 **internally** (localhost only)
 - nginx handles SSL termination and proxies to Strapi
 - HTTP traffic automatically redirects to HTTPS
 - Certificate auto-renewal is configured and tested
+- Port 1337 is closed from public access for security
