@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Docs
+- docs(deployment): Created FIX_CMS_CONTENT_DISPLAY.md with step-by-step fix guide - Identified root causes: event category "Religious" doesn't match page filter for "Educational", event start time 00:45:00 is in the past - Provided detailed instructions to edit event in Strapi: change category to "Educational" and set future start time - docs/deployment/FIX_CMS_CONTENT_DISPLAY.md
 - docs(deployment): Created CMS_CONTENT_DIAGNOSTIC_RESULTS.md with diagnostic findings - Diagnosed CMS content visibility issue: environment variables correctly configured, API connectivity working, issue is insufficient content in Strapi (only 1 event and 1 priest published, 0 puja services/announcements/newsletters) - docs/deployment/CMS_CONTENT_DIAGNOSTIC_RESULTS.md
 - docs(scripts): Created diagnose-cms-connection.sh diagnostic script - Tests all Strapi content type endpoints and reports availability - Helps identify content gaps and API connectivity issues - scripts/diagnose-cms-connection.sh
 
