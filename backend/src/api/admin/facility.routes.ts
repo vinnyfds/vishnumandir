@@ -4,7 +4,7 @@ import { prisma } from "../../utils/prisma.client";
 import { requireCognitoJwt, requireRoles } from "../../middleware/auth.middleware";
 
 const router = Router();
-const auth = [requireCognitoJwt, requireRoles(["Admin", "Event Manager"])];
+const auth = [requireCognitoJwt, requireRoles(["Admin", "EventManager"])];
 
 /**
  * GET /api/admin/facility-requests

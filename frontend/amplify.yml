@@ -1,0 +1,27 @@
+version: 1
+applications:
+  - appRoot: frontend
+    frontend:
+      buildPath: /
+      phases:
+        preBuild:
+          commands:
+            - corepack enable
+            - corepack prepare pnpm@latest --activate
+            - cd frontend
+            - pnpm install --frozen-lockfile
+            - cd ..
+            - npx prisma generate
+        build:
+          commands:
+            - cd frontend
+            - pnpm run build
+      artifacts:
+        baseDirectory: frontend/.next
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - frontend/node_modules/**/*
+          - frontend/.next/cache/**/*
+          - node_modules/.pnpm/**/*

@@ -44,7 +44,7 @@ export interface CognitoJwtPayload {
 /**
  * User role types
  */
-export type UserRole = 'Admin' | 'Editor' | 'Finance' | 'Event Manager';
+export type UserRole = 'Admin' | 'Editor' | 'Finance' | 'EventManager';
 
 /**
  * Authentication middleware result
