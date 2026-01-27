@@ -8,6 +8,7 @@ applications:
           commands:
             - npm install -g pnpm
             - pnpm install --frozen-lockfile
+            - npx prisma generate
         build:
           commands:
             - cd frontend && pnpm run build
