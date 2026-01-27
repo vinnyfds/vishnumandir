@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Fixed
+- fix(script): Fixed Amplify deployment failure by moving Zeffy script component - frontend/src/app/layout.tsx - Moved Script component from `<head>` tag to `<body>` tag for Next.js App Router compatibility - Removed `onLoad` handler that was causing SSR prerendering errors ("Event handlers cannot be passed to Client Component props") - Script still loads with `strategy="afterInteractive"` for proper timing before user interactions
 - fix(donations): Fixed Zeffy donation buttons not working on first click - frontend/src/app/layout.tsx - Replaced plain script tag with Next.js Script component using `strategy="afterInteractive"` - Added onLoad handler to dispatch zeffy-script-loaded event - Ensures script loads after page becomes interactive before buttons are clickable
 - fix(donations): Converted header and hero "Donate" links to Zeffy buttons - frontend/src/components/layout/header/Header.tsx, frontend/src/app/(site)/page.tsx - Changed from Next.js Link to button elements with zeffy-form-link attribute - Links to: https://www.zeffy.com/embed/donation-form/monthly-donor-4?modal=true - Ensures buttons work immediately when clicked
 
