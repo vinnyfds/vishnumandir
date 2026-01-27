@@ -3,11 +3,16 @@ applications:
   - appRoot: frontend
     frontend:
       buildPath: /
+      env:
+        # Skip optional dependencies that Amplify has issues with
+        npm_config_optional: 'false'
       phases:
         preBuild:
           commands:
             - npm install -g pnpm
             - pnpm install --frozen-lockfile
+            - echo "Generating Prisma Client..."
+            - npx prisma generate || echo "Prisma generation failed, continuing..."
         build:
           commands:
             - cd frontend && pnpm run build
