@@ -90,6 +90,10 @@ async function fetchStrapiContent<T>(
  * Fetch events from Strapi
  * @param filters - Optional filters (category, publishedAt, etc.)
  * @returns Promise with array of events
+ * 
+ * Note: Category filtering is done client-side due to Strapi v5 API compatibility issues
+ * with the $eq operator on enum fields. The API is called without category filter,
+ * and results are filtered in JavaScript before returning.
  */
 export async function fetchEvents(filters?: {
   category?: "Religious" | "Cultural" | "Educational" | "Festival";
@@ -98,9 +102,8 @@ export async function fetchEvents(filters?: {
 }): Promise<StrapiEvent[]> {
   const queryParams: Record<string, string> = {};
 
-  if (filters?.category) {
-    queryParams["filters[category][$eq]"] = filters.category;
-  }
+  // Category filter removed from API call - moved to client-side filtering below
+  // (Strapi v5 API does not correctly handle filters[category][$eq])
 
   // Note: publishedAt filter removed due to Strapi v5 compatibility issue
   // The API only returns published items by default anyway
@@ -130,12 +133,28 @@ export async function fetchEvents(filters?: {
     return [];
   }
 
+  // Client-side category filtering (Strapi v5 API workaround)
+  let filteredEvents = response.data;
+  if (filters?.category) {
+    filteredEvents = response.data.filter(
+      (event) => event?.attributes?.category === filters.category
+    );
+
+    if (process.env.NODE_ENV === "development") {
+      console.log("[strapi] Category filter applied client-side:", {
+        requestedCategory: filters.category,
+        apiReturnedTotal: response.data.length,
+        afterCategoryFilter: filteredEvents.length,
+      });
+    }
+  }
+
   // Debug logging for filtered results
   if (process.env.NODE_ENV === "development") {
     console.log("[strapi] fetchEvents filtered:", {
-      totalEvents: response.data.length,
+      totalEvents: filteredEvents.length,
       category: filters?.category,
-      events: response.data.map((e) => ({
+      events: filteredEvents.map((e) => ({
         title: e.attributes.title,
         category: e.attributes.category,
         date: e.attributes.date,
@@ -144,7 +163,7 @@ export async function fetchEvents(filters?: {
     });
   }
 
-  return response.data;
+  return filteredEvents;
 }
 
 /**
@@ -233,6 +252,9 @@ export async function fetchPriests(): Promise<StrapiPriest[]> {
  * Fetch announcements from Strapi
  * @param filters - Optional filters (displayUntil, level, etc.)
  * @returns Promise with array of announcements
+ * 
+ * Note: displayUntil filtering is done client-side due to Strapi v5 API limitations.
+ * Only announcements that haven't expired (displayUntil is in the future or null) are returned.
  */
 export async function fetchAnnouncements(filters?: {
   displayUntil?: Date;
@@ -243,9 +265,11 @@ export async function fetchAnnouncements(filters?: {
     sort: "publishedAt:desc",
   };
 
-  if (filters?.level) {
-    queryParams["filters[level][$eq]"] = filters.level;
-  }
+  // Note: level filter removed from API call - using client-side filtering instead
+  // (Strapi v5 API does not correctly handle filters[level][$eq])
+  // if (filters?.level) {
+  //   queryParams["filters[level][$eq]"] = filters.level;
+  // }
 
   // Note: displayUntil filter logic moved to frontend filtering
   // if (filters?.displayUntil) {
@@ -263,7 +287,57 @@ export async function fetchAnnouncements(filters?: {
     return [];
   }
 
-  return response.data;
+  // Client-side filtering for announcements
+  let filteredAnnouncements = response.data;
+
+  // Filter by level if specified
+  if (filters?.level) {
+    filteredAnnouncements = filteredAnnouncements.filter(
+      (announcement) => announcement?.attributes?.level === filters.level
+    );
+
+    if (process.env.NODE_ENV === "development") {
+      console.log("[strapi] Level filter applied client-side:", {
+        requestedLevel: filters.level,
+        afterLevelFilter: filteredAnnouncements.length,
+      });
+    }
+  }
+
+  // Filter by displayUntil date (only show non-expired announcements)
+  if (filters?.displayUntil) {
+    const now = filters.displayUntil;
+    filteredAnnouncements = filteredAnnouncements.filter((announcement) => {
+      const displayUntil = announcement?.attributes?.displayUntil;
+      // Show if no displayUntil set, or if displayUntil is in the future
+      if (!displayUntil) {
+        return true;
+      }
+      try {
+        const expiryDate = new Date(displayUntil);
+        return expiryDate > now;
+      } catch {
+        return true; // If date parsing fails, include the announcement
+      }
+    });
+
+    if (process.env.NODE_ENV === "development") {
+      console.log("[strapi] displayUntil filter applied client-side:", {
+        filterDate: filters.displayUntil.toISOString(),
+        afterDisplayUntilFilter: filteredAnnouncements.length,
+      });
+    }
+  }
+
+  if (process.env.NODE_ENV === "development") {
+    console.log("[strapi] fetchAnnouncements filtered:", {
+      totalAnnouncements: filteredAnnouncements.length,
+      level: filters?.level,
+      displayUntilFilter: !!filters?.displayUntil,
+    });
+  }
+
+  return filteredAnnouncements;
 }
 
 /**

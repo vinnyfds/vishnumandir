@@ -10,12 +10,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Fixed
+- fix(strapi): Implemented client-side category filtering in fetchEvents() - Removed broken Strapi v5 API filter `filters[category][$eq]` which was returning empty results - Now fetches all events from API and filters by category client-side in JavaScript - Events now display correctly on `/education/events` page and other category-filtered pages - frontend/src/lib/strapi.ts
+- fix(strapi): Implemented client-side filtering for announcements - Moved displayUntil and level filtering from API to client-side JavaScript - Announcements now filter correctly by expiration date and priority level - frontend/src/lib/strapi.ts
+
 ### Docs
 - docs(deployment): Created FIX_CMS_CONTENT_DISPLAY.md with step-by-step fix guide - Identified root causes: event category "Religious" doesn't match page filter for "Educational", event start time 00:45:00 is in the past - Provided detailed instructions to edit event in Strapi: change category to "Educational" and set future start time - docs/deployment/FIX_CMS_CONTENT_DISPLAY.md
 - docs(deployment): Created CMS_CONTENT_DIAGNOSTIC_RESULTS.md with diagnostic findings - Diagnosed CMS content visibility issue: environment variables correctly configured, API connectivity working, issue is insufficient content in Strapi (only 1 event and 1 priest published, 0 puja services/announcements/newsletters) - docs/deployment/CMS_CONTENT_DIAGNOSTIC_RESULTS.md
 - docs(scripts): Created diagnose-cms-connection.sh diagnostic script - Tests all Strapi content type endpoints and reports availability - Helps identify content gaps and API connectivity issues - scripts/diagnose-cms-connection.sh
 
-### Fixed
+### Other Fixed
 - fix(frontend): Added null safety checks for events in education/events page - Added defensive filters to remove events with missing attributes - Guard against undefined date/startTime before calling isFutureEvent() - Fixes Amplify build failure (Job 39): TypeError when generating static pages - frontend/src/app/(site)/education/events/page.tsx
 - fix(strapi): Removed incompatible Strapi v5 API filters - Strapi v5 doesn't support complex filters like publishedAt[$notNull], category[$eq] - These filters caused API to return empty results, preventing content from displaying - Removed all problematic filter syntax and complex nested filters from strapi.ts fetch functions - Frontend now receives all published content and handles filtering client-side - Fixes event, puja services, priests, newsletters not displaying on frontend despite being published - frontend/src/lib/strapi.ts
 - fix(frontend): Added comprehensive null safety checks for all Strapi data components - Added null checks in EventCard, PujaServiceCard, AnnouncementCard, NewsletterCard components to guard against undefined attributes - Added defensive filtering in priests, puja-services, and homepage pages to filter out invalid items - Prevents "Cannot read properties of undefined" errors during static page generation - Fixes Amplify build failures (Deployments 34-37) - frontend/src/components/shared/EventCard.tsx, frontend/src/components/shared/PujaServiceCard.tsx, frontend/src/components/shared/AnnouncementCard.tsx, frontend/src/components/shared/NewsletterCard.tsx, frontend/src/app/(site)/religious/priests/page.tsx, frontend/src/app/(site)/religious/puja-services/page.tsx, frontend/src/app/(site)/page.tsx
