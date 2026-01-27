@@ -11,6 +11,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Fixed
+- fix(donations): Fixed Zeffy donation buttons not working by using proper HTML5 data attributes and client components
+  - frontend/src/components/ui/ZeffyButton.tsx - New client component for Zeffy form buttons with modal popup handling
+  - frontend/src/lib/zeffy.ts - Utility functions for Zeffy modal opening and click handling
+  - frontend/src/components/layout/header/Header.tsx - Updated donate buttons with handleZeffyClick handler
+  - frontend/src/app/(site)/page.tsx - Updated hero and building fund buttons to use ZeffyButton component
+  - frontend/src/app/(site)/support/page.tsx - Updated membership button to use ZeffyButton component
+  - frontend/src/app/(site)/support/donate/page.tsx - Updated donate button to use ZeffyButton component
+  - Changed all zeffy-form-link attributes to data-zeffy-form-link (proper HTML5 format)
+  - Modals now open centered at 600x800px and properly handle click events
+  - All donation buttons (header, hero section, building fund, membership) now work correctly
+
 - fix(donations): Enhanced Zeffy donation button initialization and support - frontend/src/app/layout.tsx, frontend/src/components/layout/header/Header.tsx - Added onLoad callback to dispatch zeffy-script-loaded event when Zeffy script loads - Added useEffect hook to Header component to initialize Zeffy buttons when script loads - Added fallback timer to ensure buttons work even if event doesn't fire - Ensures donate buttons work reliably across all pages (header, home, support page) - Resolves "Donate buttons not working" issue by properly initializing Zeffy form bindings
 - fix(routing): Created missing pages causing 404 errors for navigation links:
   - frontend/src/app/(site)/calendar/page.tsx - Main calendar hub page with links to sub-pages and upcoming events preview - Aggregates current events, annual calendar, and newsletter archive
