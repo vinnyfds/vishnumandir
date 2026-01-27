@@ -26,6 +26,7 @@ export function Header() {
       { href: "/about/about", label: "About" },
     ],
     religious: [
+      { href: "/deities", label: "Deities" },
       { href: "/religious/puja-schedule", label: "Puja Schedule" },
       { href: "/religious/puja-services", label: "Puja Services" },
       { href: "/religious/prayer-books", label: "Prayer Books" },
@@ -51,6 +52,11 @@ export function Header() {
       { href: "/forms/email-subscription", label: "Email Subscription" },
       { href: "/forms/all-other-forms", label: "All Other Forms" },
     ],
+    support: [
+      { href: "/recurring-donation", label: "Recurring Donation" },
+      { href: "/online-puja", label: "Online Puja", isButton: true, zeffyLink: "https://www.zeffy.com/embed/donation-form/online-puja?modal=true" },
+      { href: "/membership", label: "Become a Member", isButton: true, zeffyLink: "https://www.zeffy.com/embed/ticketing/vishnu-mandir-memberships?modal=true" },
+    ],
   };
 
   return (
@@ -58,14 +64,14 @@ export function Header() {
       <div className="container mx-auto px-4 py-4">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           {/* Logo */}
-          <div className="relative h-16 md:h-20 w-48 md:w-56 shrink-0">
+          <div className="relative h-20 md:h-24 w-56 md:w-64 shrink-0">
             <Link href="/" className="block relative h-full w-full">
               <Image
-                src="/images/vishnumandir-logo.png"
+                src="/images/vishnumandir logo.svg"
                 alt="Vishnu Mandir, Tampa - Hindu Temple & Community Center"
                 fill
                 priority
-                sizes="(max-width: 768px) 192px, 224px"
+                sizes="(max-width: 768px) 224px, 256px"
                 className="object-contain object-left"
               />
             </Link>
@@ -78,12 +84,6 @@ export function Header() {
               items={menuItems.about}
               href="/about"
             />
-            <Link
-              href="/deities"
-              className="text-text-primary hover:text-primary font-medium transition-colors"
-            >
-              Deities
-            </Link>
             <DropdownMenu
               label="Religious"
               items={menuItems.religious}
@@ -109,33 +109,20 @@ export function Header() {
               items={menuItems.forms}
               href="/forms"
             />
-            <Link
-              href="/recurring-donation"
-              className="text-text-primary hover:text-primary font-medium transition-colors"
-            >
-              Recurring-Donation
-            </Link>
-            <Link
-              href="/online-puja"
-              className="text-text-primary hover:text-primary font-medium transition-colors"
-            >
-              Online-Puja
-            </Link>
-            <button
-              type="button"
-              zeffy-form-link="https://www.zeffy.com/embed/ticketing/vishnu-mandir-memberships?modal=true"
-              className="text-text-primary hover:text-primary font-medium transition-colors"
-            >
-              Become a Member
-            </button>
+            <DropdownMenu
+              label="Support"
+              items={menuItems.support}
+              href="/support"
+            />
             <div className="flex items-center gap-3 ml-4 pl-4 border-l border-border">
               <AudioToggle />
-              <Link
-                href="/support/donate"
+              <button
+                type="button"
+                zeffy-form-link="https://www.zeffy.com/embed/donation-form/monthly-donor-4?modal=true"
                 className="bg-primary text-white px-4 py-2 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
               >
                 Donate
-              </Link>
+              </button>
             </div>
           </nav>
 
@@ -197,13 +184,6 @@ export function Header() {
                   ))}
                 </div>
               </div>
-              <Link
-                href="/deities"
-                className="text-text-primary hover:text-primary font-medium transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Deities
-              </Link>
               <div>
                 <Link
                   href="/religious"
@@ -309,37 +289,49 @@ export function Header() {
                   ))}
                 </div>
               </div>
-              <Link
-                href="/recurring-donation"
-                className="text-text-primary hover:text-primary font-medium transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Recurring-Donation
-              </Link>
-              <Link
-                href="/online-puja"
-                className="text-text-primary hover:text-primary font-medium transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Online-Puja
-              </Link>
-              <button
-                type="button"
-                zeffy-form-link="https://www.zeffy.com/embed/ticketing/vishnu-mandir-memberships?modal=true"
-                className="text-text-primary hover:text-primary font-medium transition-colors text-left"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Become a Member
-              </button>
+              <div>
+                <Link
+                  href="/support"
+                  className="text-text-primary hover:text-primary font-medium transition-colors block mb-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Support
+                </Link>
+                <div className="pl-4 flex flex-col gap-2">
+                  {menuItems.support.map((item) => (
+                    item.isButton ? (
+                      <button
+                        key={item.href}
+                        type="button"
+                        zeffy-form-link={item.zeffyLink}
+                        className="text-text-secondary hover:text-primary text-sm transition-colors text-left"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        {item.label}
+                      </button>
+                    ) : (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="text-text-secondary hover:text-primary text-sm transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        {item.label}
+                      </Link>
+                    )
+                  ))}
+                </div>
+              </div>
               <div className="flex items-center gap-3 mt-4">
                 <AudioToggle />
-                <Link
-                  href="/support/donate"
+                <button
+                  type="button"
+                  zeffy-form-link="https://www.zeffy.com/embed/donation-form/monthly-donor-4?modal=true"
                   className="flex-1 bg-primary text-white px-4 py-2 rounded-lg font-semibold hover:bg-primary/90 transition-colors text-center"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Donate
-                </Link>
+                </button>
               </div>
             </div>
           </nav>

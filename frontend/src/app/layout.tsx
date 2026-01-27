@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Lato, Cinzel, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
@@ -46,7 +47,15 @@ export default function RootLayout({
       className={`${lato.variable} ${cinzel.variable} ${playfair.variable}`}
     >
       <head>
-        <script src="https://zeffy-scripts.s3.ca-central-1.amazonaws.com/embed-form-script.min.js"></script>
+        <Script
+          src="https://zeffy-scripts.s3.ca-central-1.amazonaws.com/embed-form-script.min.js"
+          strategy="afterInteractive"
+          onLoad={() => {
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(new Event('zeffy-script-loaded'));
+            }
+          }}
+        />
       </head>
       <body className="antialiased">{children}</body>
     </html>
