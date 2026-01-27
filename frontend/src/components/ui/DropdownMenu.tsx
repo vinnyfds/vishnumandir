@@ -2,10 +2,13 @@
 
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
+import { handleZeffyClick } from "@/lib/zeffy";
 
 interface DropdownItem {
   href: string;
   label: string;
+  isButton?: boolean;
+  zeffyLink?: string;
 }
 
 interface DropdownMenuProps {
@@ -103,17 +106,33 @@ export function DropdownMenu({
           role="menu"
           aria-orientation="vertical"
         >
-          {items.map((item, index) => (
-            <Link
-              key={index}
-              href={item.href}
-              className="block px-4 py-2 text-text-primary hover:bg-primary/10 hover:text-primary transition-colors focus:outline-none focus:bg-primary/10 focus:text-primary"
-              role="menuitem"
-              onClick={() => setIsOpen(false)}
-            >
-              {item.label}
-            </Link>
-          ))}
+          {items.map((item, index) =>
+            item.isButton ? (
+              <button
+                key={index}
+                type="button"
+                data-zeffy-form-link={item.zeffyLink}
+                onClick={(e) => {
+                  handleZeffyClick(e as React.MouseEvent<HTMLButtonElement>);
+                  setIsOpen(false);
+                }}
+                className="block w-full text-left px-4 py-2 text-text-primary hover:bg-primary/10 hover:text-primary transition-colors focus:outline-none focus:bg-primary/10 focus:text-primary"
+                role="menuitem"
+              >
+                {item.label}
+              </button>
+            ) : (
+              <Link
+                key={index}
+                href={item.href}
+                className="block px-4 py-2 text-text-primary hover:bg-primary/10 hover:text-primary transition-colors focus:outline-none focus:bg-primary/10 focus:text-primary"
+                role="menuitem"
+                onClick={() => setIsOpen(false)}
+              >
+                {item.label}
+              </Link>
+            )
+          )}
         </div>
       )}
     </div>

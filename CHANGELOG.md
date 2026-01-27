@@ -7,6 +7,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Fixed
+- fix(ui): Fixed "Become a Member" button not opening Zeffy form in desktop dropdown menu
+  - Updated `DropdownMenu` component to support Zeffy button items - `frontend/src/components/ui/DropdownMenu.tsx`
+  - Added optional `isButton` and `zeffyLink` properties to `DropdownItem` interface
+  - Imported `handleZeffyClick` utility from `frontend/src/lib/zeffy.ts`
+  - Conditionally renders button elements with Zeffy handlers instead of regular links when `isButton: true`
+  - Desktop Support dropdown now correctly opens Zeffy forms for "Become a Member" and "Online Puja" items
+  - Maintains consistent behavior between desktop and mobile menus
+  - Root cause: Desktop dropdown menu ignored Zeffy button configuration, rendering regular links to non-existent routes
 - fix(forms): Fixed form submissions not syncing to Strapi CMS
   - Enhanced error logging in `backend/src/services/strapi.service.ts` to capture detailed error responses including status codes, error messages, and API URLs
   - Created comprehensive guide `docs/deployment/FIX_FORM_SYNC_TO_STRAPI.md` with step-by-step instructions to fix Strapi API token permissions
