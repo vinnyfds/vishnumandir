@@ -2,18 +2,25 @@
 
 **App ID:** `d1rp3bwb0j3dq8`  
 **App Name:** `vishnumandir`  
-**Last Updated:** 2026-01-26
+**Last Updated:** 2026-01-27
+
+## Status
+
+✅ **Environment variables have been successfully configured in Amplify** as of 2026-01-27.
+- `CMS_API_URL`: Configured
+- `CMS_API_TOKEN`: Configured with proper permissions
 
 ## Required Environment Variables
 
 Set these in AWS Amplify Console > App Settings > Environment Variables
 
-### Database (Required for Prisma Generation)
+### Database (NO LONGER NEEDED IN FRONTEND)
 
-- **`DATABASE_URL`** (Server-side only)
-  - Format: `postgresql://mandir_admin:PASSWORD@ls-6dc3fd3a57dc9f6f7081de1473b92ae349ce8bb7.cgl4acs00ai2.us-east-1.rds.amazonaws.com:5432/vishnu_mandir_tampa?sslmode=require`
-  - **Important:** Must include `?sslmode=require` for AWS RDS
-  - Get password from AWS Lightsail Console > Databases > vishnu-mandir-postgres
+⚠️ **As of 2026-01-27: Prisma has been removed from the frontend.** Database operations now go through the Express backend only.
+
+- **`DATABASE_URL`** - No longer required for frontend deployment
+  - Backend services still require this for database connections
+  - Not needed for Amplify frontend build
 
 ### Backend API
 
@@ -98,13 +105,18 @@ aws amplify update-branch \
 ## Critical Variables for Build
 
 **Minimum required for build to succeed:**
-- `DATABASE_URL` - Required for Prisma Client generation
+- *(None - Frontend build no longer requires DATABASE_URL or Prisma)*
 
-**Recommended for first deployment:**
-- `NEXT_PUBLIC_API_URL`
-- `NEXT_PUBLIC_COGNITO_REGION`
-- `CMS_API_URL`
-- `NEXT_PUBLIC_URL` (can be updated after deployment)
+**Recommended for deployment to work correctly:**
+- `NEXT_PUBLIC_API_URL` - Backend API URL for form submissions
+- `NEXT_PUBLIC_COGNITO_REGION` - For admin authentication
+- `CMS_API_URL` - For CMS content display (announcements, events, etc.)
+- `CMS_API_TOKEN` - For accessing CMS API
+- `NEXT_PUBLIC_URL` - Can be updated after deployment
+
+**Currently Configured in Amplify (as of 2026-01-27):**
+- ✅ `CMS_API_URL`: Configured
+- ✅ `CMS_API_TOKEN`: Configured
 
 ## Troubleshooting
 
