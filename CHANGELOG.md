@@ -7,6 +7,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Fixed
+- fix(forms): Enhanced form submission error handling and backend CORS configuration
+  - Added detailed error logging in all form API routes (facility-request, sponsorship, email-subscription, donation-statement, change-of-address)
+  - Added warnings when NEXT_PUBLIC_API_URL defaults to localhost in production
+  - Improved error messages for fetch failures to help diagnose backend connectivity issues
+  - Updated backend CORS to dynamically allow Amplify domains (including *.amplifyapp.com pattern)
+  - Backend CORS now uses origin validation function instead of static list for better flexibility
+  - Files modified:
+    - `frontend/src/app/api/v1/forms/*/route.ts` - Enhanced error handling and logging
+    - `backend/src/config/corsOptions.ts` - Dynamic origin validation for Amplify domains
+- fix(forms): Fixed form submissions not syncing to Strapi CMS by correcting CMS_API_URL configuration
+  - Updated `scripts/backend-env-template.txt` to use HTTPS URL without port 1337 - `CMS_API_URL="https://cms.vishnumandirtampa.com/api"`
+  - Changed production backend `.env` file to use correct HTTPS endpoint
+  - Root cause: Backend was configured to use `http://cms.vishnumandirtampa.com:1337/api` which fails because port 1337 is closed from public access
+  - Strapi runs internally on port 1337 but is exposed via Nginx reverse proxy on HTTPS port 443 (no port in URL)
+  - After fix: Forms submitted from frontend are successfully synced to Strapi CMS Content Manager
+  - Verified connectivity and sync with test POST requests to Strapi API
 - fix(ui): Fixed "Become a Member" button not opening Zeffy form in desktop dropdown menu
   - Updated `DropdownMenu` component to support Zeffy button items - `frontend/src/components/ui/DropdownMenu.tsx`
   - Added optional `isButton` and `zeffyLink` properties to `DropdownItem` interface
