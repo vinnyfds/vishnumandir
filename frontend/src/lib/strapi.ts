@@ -19,6 +19,41 @@ const CMS_API_URL =
 const CMS_API_TOKEN = process.env.CMS_API_TOKEN || "";
 
 /**
+ * Normalize Strapi v5 flat response to v4-like structure with attributes.
+ * Strapi v5 returns: { id: 1, title: "Hello", ... }
+ * Frontend expects: { id: 1, attributes: { title: "Hello", ... } }
+ * 
+ * @param item - Single item from Strapi v5 API
+ * @returns Normalized item with attributes wrapper
+ */
+function normalizeToV4<T extends { id: number; attributes: Record<string, unknown> }>(
+  item: Record<string, unknown>
+): T {
+  // If already has attributes structure (v4 format), return as-is
+  if (item.attributes && typeof item.attributes === "object") {
+    return item as T;
+  }
+
+  // Convert v5 flat structure to v4-like structure
+  const { id, documentId, ...rest } = item;
+  return {
+    id: id as number,
+    attributes: rest,
+  } as T;
+}
+
+/**
+ * Normalize an array of Strapi v5 items to v4-like structure
+ * @param items - Array of items from Strapi v5 API
+ * @returns Normalized array with attributes wrappers
+ */
+function normalizeArrayToV4<T extends { id: number; attributes: Record<string, unknown> }>(
+  items: Record<string, unknown>[]
+): T[] {
+  return items.map((item) => normalizeToV4<T>(item));
+}
+
+/**
  * Generic function to fetch content from Strapi API
  * @param endpoint - API endpoint (e.g., "events", "puja-services")
  * @param filters - Query parameters for filtering, sorting, etc.
@@ -118,7 +153,7 @@ export async function fetchEvents(filters?: {
   }
 
   const response = await fetchStrapiContent<
-    StrapiCollectionResponse<StrapiEvent>
+    StrapiCollectionResponse<Record<string, unknown>>
   >("events", queryParams);
 
   if (!response || !response.data) {
@@ -133,10 +168,13 @@ export async function fetchEvents(filters?: {
     return [];
   }
 
+  // Normalize Strapi v5 flat response to v4-like structure
+  const normalizedEvents = normalizeArrayToV4<StrapiEvent>(response.data);
+
   // Client-side category filtering (Strapi v5 API workaround)
-  let filteredEvents = response.data;
+  let filteredEvents = normalizedEvents;
   if (filters?.category) {
-    filteredEvents = response.data.filter(
+    filteredEvents = normalizedEvents.filter(
       (event) => event?.attributes?.category === filters.category
     );
 
@@ -175,7 +213,7 @@ export async function fetchEventBySlug(
   slug: string
 ): Promise<StrapiEvent | null> {
   const response = await fetchStrapiContent<
-    StrapiCollectionResponse<StrapiEvent>
+    StrapiCollectionResponse<Record<string, unknown>>
   >("events", {
     "filters[slug][$eq]": slug,
     // publishedAt filter removed due to Strapi v5 compatibility
@@ -185,7 +223,8 @@ export async function fetchEventBySlug(
     return null;
   }
 
-  return response.data[0];
+  // Normalize Strapi v5 flat response to v4-like structure
+  return normalizeToV4<StrapiEvent>(response.data[0]);
 }
 
 /**
@@ -194,7 +233,7 @@ export async function fetchEventBySlug(
  */
 export async function fetchPujaServices(): Promise<StrapiPujaService[]> {
   const response = await fetchStrapiContent<
-    StrapiCollectionResponse<StrapiPujaService>
+    StrapiCollectionResponse<Record<string, unknown>>
   >("puja-services", {
     sort: "name:asc",
     // Filters removed due to Strapi v5 compatibility
@@ -204,7 +243,8 @@ export async function fetchPujaServices(): Promise<StrapiPujaService[]> {
     return [];
   }
 
-  return response.data;
+  // Normalize Strapi v5 flat response to v4-like structure
+  return normalizeArrayToV4<StrapiPujaService>(response.data);
 }
 
 /**
@@ -216,7 +256,7 @@ export async function fetchPujaServiceBySlug(
   slug: string
 ): Promise<StrapiPujaService | null> {
   const response = await fetchStrapiContent<
-    StrapiCollectionResponse<StrapiPujaService>
+    StrapiCollectionResponse<Record<string, unknown>>
   >("puja-services", {
     "filters[slug][$eq]": slug,
     // publishedAt filter removed due to Strapi v5 compatibility
@@ -226,7 +266,8 @@ export async function fetchPujaServiceBySlug(
     return null;
   }
 
-  return response.data[0];
+  // Normalize Strapi v5 flat response to v4-like structure
+  return normalizeToV4<StrapiPujaService>(response.data[0]);
 }
 
 /**
@@ -235,7 +276,7 @@ export async function fetchPujaServiceBySlug(
  */
 export async function fetchPriests(): Promise<StrapiPriest[]> {
   const response = await fetchStrapiContent<
-    StrapiCollectionResponse<StrapiPriest>
+    StrapiCollectionResponse<Record<string, unknown>>
   >("priests", {
     sort: "name:asc",
     // Filters removed due to Strapi v5 compatibility
@@ -245,7 +286,8 @@ export async function fetchPriests(): Promise<StrapiPriest[]> {
     return [];
   }
 
-  return response.data;
+  // Normalize Strapi v5 flat response to v4-like structure
+  return normalizeArrayToV4<StrapiPriest>(response.data);
 }
 
 /**
@@ -280,15 +322,18 @@ export async function fetchAnnouncements(filters?: {
   // }
 
   const response = await fetchStrapiContent<
-    StrapiCollectionResponse<StrapiAnnouncement>
+    StrapiCollectionResponse<Record<string, unknown>>
   >("announcements", queryParams);
 
   if (!response || !response.data) {
     return [];
   }
 
+  // Normalize Strapi v5 flat response to v4-like structure
+  const normalizedAnnouncements = normalizeArrayToV4<StrapiAnnouncement>(response.data);
+
   // Client-side filtering for announcements
-  let filteredAnnouncements = response.data;
+  let filteredAnnouncements = normalizedAnnouncements;
 
   // Filter by level if specified
   if (filters?.level) {
@@ -346,7 +391,7 @@ export async function fetchAnnouncements(filters?: {
  */
 export async function fetchNewsletters(): Promise<StrapiNewsletter[]> {
   const response = await fetchStrapiContent<
-    StrapiCollectionResponse<StrapiNewsletter>
+    StrapiCollectionResponse<Record<string, unknown>>
   >("newsletters", {
     sort: "publicationDate:desc",
     // Filters removed due to Strapi v5 compatibility
@@ -356,7 +401,8 @@ export async function fetchNewsletters(): Promise<StrapiNewsletter[]> {
     return [];
   }
 
-  return response.data;
+  // Normalize Strapi v5 flat response to v4-like structure
+  return normalizeArrayToV4<StrapiNewsletter>(response.data);
 }
 
 /**
@@ -368,7 +414,7 @@ export async function fetchPageBySlug(
   slug: string
 ): Promise<StrapiPage | null> {
   const response = await fetchStrapiContent<
-    StrapiCollectionResponse<StrapiPage>
+    StrapiCollectionResponse<Record<string, unknown>>
   >("pages", {
     "filters[slug][$eq]": slug,
     // publishedAt filter removed due to Strapi v5 compatibility
@@ -378,5 +424,6 @@ export async function fetchPageBySlug(
     return null;
   }
 
-  return response.data[0];
+  // Normalize Strapi v5 flat response to v4-like structure
+  return normalizeToV4<StrapiPage>(response.data[0]);
 }

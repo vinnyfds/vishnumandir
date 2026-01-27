@@ -10,7 +10,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Added
+- feat(debugging): Created comprehensive CMS-frontend integration test script - scripts/test-cms-frontend-integration.sh - Tests Strapi API connectivity for all content types - Validates response structures and content availability - Provides detailed recommendations for fixing issues - Helps diagnose permission and configuration problems
+- feat(api): Created /api/debug/cms endpoint for production diagnostics - frontend/src/app/api/debug/cms/route.ts - Tests CMS connectivity from deployed frontend server - Returns JSON with environment status, test results, and recommendations - Can be accessed at /api/debug/cms on any deployment
+- docs(deployment): Created STRAPI_PERMISSIONS_VERIFICATION.md with comprehensive permission setup guide - docs/deployment/STRAPI_PERMISSIONS_VERIFICATION.md - Step-by-step instructions for verifying and configuring Strapi API token permissions - Documents both "Full access" and "Custom" token types - Includes troubleshooting section for common permission errors
+- docs(deployment): Created CMS_TESTING_VALIDATION.md with complete testing guide for all content types - docs/deployment/CMS_TESTING_VALIDATION.md - Manual testing steps for Event, Announcement, Newsletter, Priest, Puja Service - Comprehensive checklist for verifying CMS-to-frontend content flow - Includes troubleshooting matrix and summary tables
+- docs(deployment): Updated AMPLIFY_ENV_VARS.md with troubleshooting section - docs/deployment/AMPLIFY_ENV_VARS.md - Added CMS content troubleshooting steps - Added test commands for verifying API connectivity - Added ISR cache explanation and solutions
+
 ### Fixed
+- fix(strapi): Added Strapi v5 to v4 response normalization layer - frontend/src/lib/strapi.ts - **ROOT CAUSE FOUND:** Strapi v5 returns flat responses `{id, title, ...}` but frontend expected v4 nested structure `{id, attributes: {title, ...}}` - Added `normalizeToV4()` and `normalizeArrayToV4()` functions to convert v5 flat responses to v4-like structure - Updated all fetch functions (fetchEvents, fetchPujaServices, fetchPriests, fetchAnnouncements, fetchNewsletters, fetchPageBySlug) to use normalization - CMS content now displays correctly on all frontend pages
 - fix(strapi): Implemented client-side category filtering in fetchEvents() - Removed broken Strapi v5 API filter `filters[category][$eq]` which was returning empty results - Now fetches all events from API and filters by category client-side in JavaScript - Events now display correctly on `/education/events` page and other category-filtered pages - frontend/src/lib/strapi.ts
 - fix(strapi): Implemented client-side filtering for announcements - Moved displayUntil and level filtering from API to client-side JavaScript - Announcements now filter correctly by expiration date and priority level - frontend/src/lib/strapi.ts
 

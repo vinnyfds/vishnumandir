@@ -106,9 +106,103 @@ aws amplify update-branch \
 - `CMS_API_URL`
 - `NEXT_PUBLIC_URL` (can be updated after deployment)
 
-## Notes
+## Troubleshooting
+
+### CMS Content Not Showing on Frontend
+
+**Symptoms:**
+- Events/Announcements not displaying on website
+- `/api/debug/cms` endpoint shows errors
+- Test script shows "Failed" for CMS endpoints
+
+**Solutions:**
+
+1. **Verify CMS_API_TOKEN has permissions:**
+   ```bash
+   # Test the token with curl
+   curl -H "Authorization: Bearer YOUR_TOKEN" \
+     'https://cms.vishnumandirtampa.com/api/events?populate=*'
+   ```
+   - If response is 403 (Forbidden): Token lacks permissions
+   - If response is 401 (Unauthorized): Token is invalid
+   - If response is 200 with data: Token is working ✓
+
+2. **Fix token permissions:**
+   - Go to Strapi Admin: Settings → API Tokens
+   - Click your token to edit
+   - Change "Token type" from "Custom" to **"Full access"**
+   - Click Save
+   - See [STRAPI_PERMISSIONS_VERIFICATION.md](./STRAPI_PERMISSIONS_VERIFICATION.md) for detailed steps
+
+3. **Verify environment variables in Amplify:**
+   - Go to AWS Amplify Console → vishnumandir → App Settings → Environment Variables
+   - Verify `CMS_API_URL` = `https://cms.vishnumandirtampa.com/api`
+   - Verify `CMS_API_TOKEN` is set
+   - If missing, add them and redeploy
+
+4. **Check content is published:**
+   - Go to Strapi Admin: Content Manager → Event (or other type)
+   - Click each item
+   - Ensure you click "Publish" (not just "Save")
+   - Check event date/time is in the future (past events are hidden)
+
+5. **Clear ISR cache:**
+   - Frontend pages cache for 5 minutes (ISR)
+   - New content appears automatically within 5 minutes
+   - Or redeploy frontend to force refresh
+
+### Test CMS Connectivity
+
+Use the debug endpoint to test from production:
+
+```bash
+# Test from deployed frontend
+curl https://vishnumandirtampa.com/api/debug/cms
+
+# Should return JSON with:
+# - "summary.successful": number > 0
+# - "summary.errors": 0
+# - Each content type status should be "success"
+```
+
+Use the test script from local:
+
+```bash
+cd /path/to/project
+./scripts/test-cms-frontend-integration.sh
+```
+
+### Build Failures Related to Environment Variables
+
+**Error:** "DATABASE_URL is not set" or similar
+
+**Solution:**
+1. Ensure all required variables are set in Amplify Console
+2. Variables must be set BEFORE starting a new build
+3. After setting variables, trigger a new build:
+   - Go to AWS Amplify Console
+   - Select the app
+   - Click "Deployments" tab
+   - Click "Redeploy this version"
+
+### ISR Cache Issues
+
+**Problem:** Changes made to Strapi don't appear on website immediately
+
+**Explanation:**
+- Frontend pages use ISR (Incremental Static Regeneration)
+- Pages cache for 5 minutes (300 seconds)
+- New content is fetched automatically in background
+
+**Solutions:**
+1. **Wait 5 minutes:** Content will appear automatically
+2. **Redeploy frontend:** Force rebuild to refresh all pages
+3. **Use debug endpoint:** Check if CMS API is returning data
+
+### Notes
 
 - Variables prefixed with `NEXT_PUBLIC_` are available in the browser
 - Variables without `NEXT_PUBLIC_` prefix are server-side only (API routes)
 - Never commit actual values to Git
 - Update `NEXT_PUBLIC_URL` after domain is attached to Amplify app
+- For CMS configuration issues, see [STRAPI_PERMISSIONS_VERIFICATION.md](./STRAPI_PERMISSIONS_VERIFICATION.md)
