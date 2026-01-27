@@ -1,19 +1,26 @@
-import axios, { AxiosError } from "axios";
-
-const CMS_API_URL = process.env.CMS_API_URL || "http://localhost:1337/api";
-const CMS_API_TOKEN = process.env.CMS_API_TOKEN || "";
+import axios, { AxiosError, AxiosInstance } from "axios";
 
 /**
- * Strapi API client configuration
+ * Get Strapi API client (lazy initialization).
+ * Reads environment variables when called, not at module load time.
  */
-const strapiClient = axios.create({
-  baseURL: CMS_API_URL,
-  headers: {
-    "Content-Type": "application/json",
-    ...(CMS_API_TOKEN && { Authorization: `Bearer ${CMS_API_TOKEN}` }),
-  },
-  timeout: 10000, // 10 second timeout
-});
+function getStrapiClient(): AxiosInstance | null {
+  const CMS_API_URL = process.env.CMS_API_URL || "http://localhost:1337/api";
+  const CMS_API_TOKEN = process.env.CMS_API_TOKEN || "";
+
+  if (!CMS_API_TOKEN) {
+    return null;
+  }
+
+  return axios.create({
+    baseURL: CMS_API_URL,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${CMS_API_TOKEN}`,
+    },
+    timeout: 10000, // 10 second timeout
+  });
+}
 
 /**
  * Interface for Puja Sponsorship data
@@ -74,7 +81,8 @@ interface FormSubmissionData {
 export async function createPujaSponsorship(
   data: PujaSponsorshipData
 ): Promise<boolean> {
-  if (!CMS_API_TOKEN) {
+  const strapiClient = getStrapiClient();
+  if (!strapiClient) {
     console.warn("[strapi.service] CMS_API_TOKEN not configured, skipping Strapi sync");
     return false;
   }
@@ -103,7 +111,8 @@ export async function createPujaSponsorship(
 export async function createFacilityRequest(
   data: FacilityRequestData
 ): Promise<boolean> {
-  if (!CMS_API_TOKEN) {
+  const strapiClient = getStrapiClient();
+  if (!strapiClient) {
     console.warn("[strapi.service] CMS_API_TOKEN not configured, skipping Strapi sync");
     return false;
   }
@@ -132,7 +141,8 @@ export async function createFacilityRequest(
 export async function createFormSubmission(
   data: FormSubmissionData
 ): Promise<boolean> {
-  if (!CMS_API_TOKEN) {
+  const strapiClient = getStrapiClient();
+  if (!strapiClient) {
     console.warn("[strapi.service] CMS_API_TOKEN not configured, skipping Strapi sync");
     return false;
   }
