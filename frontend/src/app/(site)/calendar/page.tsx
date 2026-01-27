@@ -40,7 +40,6 @@ export default async function CalendarPage() {
   const allEvents = await fetchEvents({
     publishedAt: true,
     sort: "date:asc",
-    pagination: { limit: 6 },
   });
 
   const upcomingEvents = allEvents

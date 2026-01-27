@@ -51,11 +51,36 @@ export default function RootLayout({
         <Script
           src="https://zeffy-scripts.s3.ca-central-1.amazonaws.com/embed-form-script.min.js"
           strategy="afterInteractive"
-          onLoad={() => {
-            // Dispatch event to notify that Zeffy script has loaded
-            if (typeof window !== 'undefined') {
-              window.dispatchEvent(new Event('zeffy-script-loaded'));
-            }
+        />
+        {/* Initialize Zeffy buttons after script loads */}
+        <Script
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                const initZeffy = () => {
+                  if (window.Zeffy) {
+                    window.Zeffy.bind?.();
+                    window.dispatchEvent(new Event('zeffy-script-loaded'));
+                  }
+                };
+                
+                // Try immediately
+                if (document.readyState === 'loading') {
+                  document.addEventListener('DOMContentLoaded', initZeffy);
+                } else {
+                  setTimeout(initZeffy, 100);
+                }
+                
+                // Also check periodically
+                let attempts = 0;
+                const checkInterval = setInterval(() => {
+                  initZeffy();
+                  attempts++;
+                  if (attempts > 50) clearInterval(checkInterval);
+                }, 100);
+              })();
+            `,
           }}
         />
       </body>
