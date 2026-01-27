@@ -192,7 +192,7 @@ export default async function NewsletterPage() {
             <p className="text-sm text-text-secondary mt-4">
               Note: This form is currently a placeholder. For immediate
               subscription, please contact us at (813) 269-7262 or email
-              sakeemj@live.com.
+              info@vishnumandirtampa.com.
             </p>
           </div>
         </section>

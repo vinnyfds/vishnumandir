@@ -45,6 +45,9 @@ export default function RootLayout({
       lang="en"
       className={`${lato.variable} ${cinzel.variable} ${playfair.variable}`}
     >
+      <head>
+        <script src="https://zeffy-scripts.s3.ca-central-1.amazonaws.com/embed-form-script.min.js"></script>
+      </head>
       <body className="antialiased">{children}</body>
     </html>
   );

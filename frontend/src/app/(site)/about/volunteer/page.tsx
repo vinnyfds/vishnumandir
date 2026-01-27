@@ -186,7 +186,7 @@ export default function VolunteerPage() {
                 </h3>
                 <p>
                   Reach out to us via phone at (813) 269-7262 or email at
-                  sakeemj@live.com to express your interest in volunteering.
+                  info@vishnumandirtampa.com to express your interest in volunteering.
                 </p>
               </div>
             </div>

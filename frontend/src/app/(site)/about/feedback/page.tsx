@@ -190,7 +190,7 @@ export default function FeedbackPage() {
             <p className="text-sm text-text-secondary mt-6">
               <strong>Note:</strong> This form is currently a placeholder. For
               immediate feedback, please call us at (813) 269-7262 or email
-              sakeemj@live.com.
+              info@vishnumandirtampa.com.
             </p>
           </section>
 

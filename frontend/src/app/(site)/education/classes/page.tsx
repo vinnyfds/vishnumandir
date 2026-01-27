@@ -136,7 +136,7 @@ export default function EducationClassesPage() {
           </p>
           <ul className="list-disc list-inside space-y-2 text-text-secondary ml-4 mb-6">
             <li>Contact us at (813) 269-7262</li>
-            <li>Email sakeemj@live.com with your class interest</li>
+            <li>Email info@vishnumandirtampa.com with your class interest</li>
             <li>Check our calendar for class schedules and registration dates</li>
             <li>Visit the temple during office hours to speak with instructors</li>
           </ul>

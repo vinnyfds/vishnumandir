@@ -78,7 +78,7 @@ export default function ChangeOfAddressPage() {
           </h2>
           <ChangeOfAddressForm />
           <p className="text-sm text-text-secondary mt-4">
-            For immediate updates, call (813) 269-7262 or email sakeemj@live.com.
+            For immediate updates, call (813) 269-7262 or email info@vishnumandirtampa.com.
           </p>
         </section>
 

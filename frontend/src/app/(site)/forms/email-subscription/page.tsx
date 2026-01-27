@@ -78,7 +78,7 @@ export default function EmailSubscriptionPage() {
           </h2>
           <EmailSubscriptionForm />
           <p className="text-sm text-text-secondary mt-4">
-            For immediate subscription updates, call (813) 269-7262 or email sakeemj@live.com.
+            For immediate subscription updates, call (813) 269-7262 or email info@vishnumandirtampa.com.
           </p>
         </section>
 

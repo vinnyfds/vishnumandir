@@ -79,7 +79,7 @@ export default function RequestFacilityPage() {
           </h2>
           <FacilityRequestForm />
           <p className="text-sm text-text-secondary mt-4">
-            For immediate assistance, call (813) 269-7262 or email sakeemj@live.com.
+            For immediate assistance, call (813) 269-7262 or email info@vishnumandirtampa.com.
           </p>
         </section>
 

@@ -10,6 +10,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Added
+- feat(ui): Increased logo size in header for better visibility - frontend/src/components/layout/header/Header.tsx - Changed from h-12 md:h-14 w-36 md:w-44 to h-16 md:h-20 w-48 md:w-56 - Updated sizes prop accordingly (from 144px, 176px to 192px, 224px)
+- feat(navigation): Reorganized main navigation with About tab moved to first position - frontend/src/components/layout/header/Header.tsx - Added "Board of Trustees" as first dropdown item in About menu - Updated both desktop and mobile navigation menus - About now appears before Deities in navigation order
+- feat(about): Created Board of Trustees page with leadership structure - frontend/src/app/(site)/about/board-of-trustees/page.tsx - Lists 12 Board of Directors members - Lists 3 Executive Committee members with titles (President, Treasurer, Secretary) - Includes leadership commitment and contact information
+- feat(about): Added "Meet Our Priests" section to About Us page - frontend/src/app/(site)/about/about/page.tsx - Links to detailed priests page - Includes link to request puja services
+- feat(navigation): Added "Become a Member" button to main navigation - frontend/src/components/layout/header/Header.tsx - Integrated with Zeffy ticketing form for membership registration - Links to: https://www.zeffy.com/embed/ticketing/vishnu-mandir-memberships?modal=true - Added to both desktop and mobile navigation
+- feat(donations): Integrated Zeffy donation platform - frontend/src/app/layout.tsx - Added Zeffy script to root layout: https://zeffy-scripts.s3.ca-central-1.amazonaws.com/embed-form-script.min.js
+- feat(donations): Updated donation page to use Zeffy - frontend/src/app/(site)/support/donate/page.tsx - Replaced Stripe donation form with Zeffy button - Links to: https://www.zeffy.com/embed/donation-form/monthly-donor-4?modal=true - Supports both one-time and recurring donations
+- feat(homepage): Added New Facility campaign section on homepage - frontend/src/app/(site)/page.tsx - Prominent section after hero and before announcements - Includes vision, why needed, facility features, community impact, support options, and transparency info - "Support the Building Fund" button links to: https://www.zeffy.com/embed/donation-form/vishnu-mandir-building-fund?modal=true - Uses emojis for visual facility features (🧘🛕🎉🍽️🌿🚗)
+
+### Fixed
+- fix(email): Updated all email addresses from sakeemj@live.com to info@vishnumandirtampa.com across entire site
+  - frontend/src/lib/seo.ts - Organization schema
+  - frontend/src/app/(site)/about/about/page.tsx - About Us page contact
+  - frontend/src/app/(site)/about/contact/page.tsx - Contact page
+  - frontend/src/app/(site)/about/feedback/page.tsx - Feedback form placeholder
+  - frontend/src/app/(site)/about/volunteer/page.tsx - Volunteer form
+  - frontend/src/app/(site)/religious/priests/page.tsx - Priests contact
+  - frontend/src/app/(site)/calendar/newsletter/page.tsx - Newsletter placeholder
+  - frontend/src/app/(site)/forms/email-subscription/page.tsx - Email subscription form
+  - frontend/src/app/(site)/forms/change-of-address/page.tsx - Address change form
+  - frontend/src/app/(site)/forms/request-facility/page.tsx - Facility request form
+  - frontend/src/app/(site)/forms/puja-sponsorships/page.tsx - Puja sponsorship form
+  - frontend/src/app/(site)/forms/donation-statement/page.tsx - Donation statement form
+  - frontend/src/app/(site)/education/classes/page.tsx - Classes registration
+
 ### Fixed
 - fix(backend): Fixed Strapi CMS sync not working - backend/src/services/strapi.service.ts - Changed from module-level environment variable reading to lazy initialization - Environment variables (CMS_API_URL, CMS_API_TOKEN) now read when functions are called, not at module load time - Fixes issue where dotenv.config() runs after module imports, causing CMS_API_TOKEN to be undefined - Updated CMS_API_URL in backend .env from HTTP to HTTPS - Form submissions now successfully sync to Strapi CMS for admin viewing - Fixes "CMS_API_TOKEN not configured" warnings in logs
 - fix(database): Created initial schema migration to fix missing database tables - prisma/migrations/20260124000000_initial_schema/migration.sql - Generates all required tables from Prisma schema (User, Event, Donation, PujaSponsorship, FacilityRequest, Newsletter, FormSubmission) - All tables created with CREATE TABLE IF NOT EXISTS for idempotency - All required enums created with proper constraints - Fixed 20260125000002 migration to safely handle optional attendees column migration - Fixed 20260125000003 migration to check if FormSubmissionType enum already exists - Reordered migrations so initial schema creates tables before alteration migrations - Deployed to production RDS database - Fixes "The table `public.PujaSponsorship` does not exist" error on form submissions

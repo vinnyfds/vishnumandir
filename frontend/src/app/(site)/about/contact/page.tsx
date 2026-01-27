@@ -95,10 +95,10 @@ export default function ContactPage() {
                 <h3 className="font-semibold text-text-primary mb-1">Email</h3>
                 <p className="text-text-secondary">
                   <a
-                    href="mailto:sakeemj@live.com"
+                    href="mailto:info@vishnumandirtampa.com"
                     className="hover:text-primary transition-colors break-all"
                   >
-                    sakeemj@live.com
+                    info@vishnumandirtampa.com
                   </a>
                 </p>
               </div>

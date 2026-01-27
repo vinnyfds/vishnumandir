@@ -194,6 +194,33 @@ export default function AboutUsPage() {
             </div>
           </section>
 
+          {/* Meet Our Priests */}
+          <section className="bg-white rounded-xl p-8 border-2 border-primary/5 shadow-warm">
+            <h2 className="font-serif text-3xl font-semibold text-text-primary mb-4">
+              Meet Our Priests
+            </h2>
+            <p className="text-text-secondary leading-relaxed mb-6">
+              Our dedicated priests are spiritual guides experienced in Vedic
+              traditions and Hindu ceremonies. They are available to conduct pujas,
+              perform special ceremonies, and provide spiritual guidance to all
+              devotees.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link
+                href="/religious/priests"
+                className="inline-block px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors text-center"
+              >
+                View Our Priests
+              </Link>
+              <Link
+                href="/forms/puja-sponsorships"
+                className="inline-block px-6 py-3 bg-white text-primary border-2 border-primary rounded-lg font-semibold hover:bg-primary/5 transition-colors text-center"
+              >
+                Request a Puja Service
+              </Link>
+            </div>
+          </section>
+
           {/* Contact CTA */}
           <section className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-xl p-8 border-2 border-primary/5">
             <h2 className="font-serif text-3xl font-semibold text-text-primary mb-4">
@@ -212,7 +239,7 @@ export default function AboutUsPage() {
                 <strong>Phone:</strong> (813) 269-7262
               </p>
               <p>
-                <strong>Email:</strong> sakeemj@live.com
+                <strong>Email:</strong> info@vishnumandirtampa.com
               </p>
             </div>
             <Link

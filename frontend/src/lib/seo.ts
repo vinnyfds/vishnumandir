@@ -22,7 +22,7 @@ export const TEMPLE_ORG = {
     addressCountry: "US",
   },
   telephone: "+1-813-269-7262",
-  email: "sakeemj@live.com",
+  email: "info@vishnumandirtampa.com",
   description:
     "Vishnu Mandir, Tampa is a Hindu temple serving the Tampa Bay area, offering puja services, festivals, and spiritual guidance to the Hindu community.",
   foundingDate: "2003",

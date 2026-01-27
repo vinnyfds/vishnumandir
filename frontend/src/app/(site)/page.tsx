@@ -166,6 +166,201 @@ export default async function HomePage() {
       </section>
 
       <div className="container mx-auto px-4 pb-20">
+        {/* New Facility Campaign */}
+        <section className="mb-20">
+          <div className="bg-white rounded-xl overflow-hidden border-2 border-primary/5 shadow-warm">
+            <div className="bg-gradient-to-br from-primary/10 to-accent/10 p-8 md:p-12">
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-text-primary mb-4">
+                Vishnu Mandir New Facility
+              </h2>
+              <p className="font-serif text-2xl text-primary mb-8">
+                A Sacred Space for Today and Tomorrow
+              </p>
+            </div>
+
+            <div className="p-8 md:p-12 space-y-8">
+              {/* Our Vision */}
+              <div>
+                <h3 className="font-serif text-2xl font-semibold text-text-primary mb-4">
+                  Our Vision
+                </h3>
+                <p className="text-text-secondary leading-relaxed mb-4">
+                  We are embarking on a historic journey to build a new Hindu Temple—a
+                  spiritual and cultural center that will serve generations to come. This
+                  temple will be a place for prayer, learning, festivals, community
+                  service, and the preservation of Hindu traditions in a welcoming and
+                  inclusive environment.
+                </p>
+                <p className="text-text-secondary leading-relaxed">
+                  Our goal is to create a sanctuary that nurtures devotion, strengthens
+                  families, educates youth, and unites our community around shared values
+                  of dharma, seva, peace, and compassion.
+                </p>
+              </div>
+
+              {/* Why This Temple Is Needed */}
+              <div>
+                <h3 className="font-serif text-2xl font-semibold text-text-primary mb-4">
+                  Why This Temple Is Needed
+                </h3>
+                <p className="text-text-secondary leading-relaxed mb-4">
+                  Our growing community needs a permanent, purpose-built home where we can:
+                </p>
+                <ul className="list-disc list-inside space-y-2 text-text-secondary ml-4">
+                  <li>Conduct daily pujas and major festivals</li>
+                  <li>Offer youth education, language, and scripture classes</li>
+                  <li>Host Satsangs, lectures, and cultural programs</li>
+                  <li>Support weddings, naming ceremonies, and memorial services</li>
+                  <li>Provide charitable outreach and community service</li>
+                  <li>Preserve Hindu heritage for future generations</li>
+                </ul>
+                <p className="text-text-secondary leading-relaxed mt-4">
+                  This project is not only about constructing a building—it is about
+                  building a spiritual legacy for the community.
+                </p>
+              </div>
+
+              {/* What the Temple Will Include */}
+              <div>
+                <h3 className="font-serif text-2xl font-semibold text-text-primary mb-4">
+                  What the Temple Will Include
+                </h3>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="flex items-start gap-3">
+                    <span className="text-3xl">🧘</span>
+                    <div>
+                      <h4 className="font-semibold text-text-primary">
+                        Meditation & Gathering Spaces
+                      </h4>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-3xl">🛕</span>
+                    <div>
+                      <h4 className="font-semibold text-text-primary">
+                        Main Shrine & Prayer Hall
+                      </h4>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-3xl">🎉</span>
+                    <div>
+                      <h4 className="font-semibold text-text-primary">
+                        Festival & Event Areas
+                      </h4>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-3xl">🍽️</span>
+                    <div>
+                      <h4 className="font-semibold text-text-primary">
+                        Prasad Hall / Kitchen & Community Dining
+                      </h4>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-3xl">🌿</span>
+                    <div>
+                      <h4 className="font-semibold text-text-primary">
+                        Peaceful Courtyard & Landscaping
+                      </h4>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-3xl">🚗</span>
+                    <div>
+                      <h4 className="font-semibold text-text-primary">
+                        Accessible Parking & Facilities
+                      </h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Community Impact */}
+              <div>
+                <h3 className="font-serif text-2xl font-semibold text-text-primary mb-4">
+                  Community Impact
+                </h3>
+                <p className="text-text-secondary leading-relaxed mb-4">
+                  This temple will become:
+                </p>
+                <ul className="list-disc list-inside space-y-2 text-text-secondary ml-4">
+                  <li>A spiritual anchor for devotees</li>
+                  <li>A learning center for children and youth</li>
+                  <li>A cultural bridge to the wider community</li>
+                  <li>A hub for service, charity, and outreach</li>
+                  <li>A symbol of unity and continuity</li>
+                </ul>
+                <p className="text-text-secondary leading-relaxed mt-4">
+                  Every brick laid will represent faith, generosity, and collective effort.
+                </p>
+              </div>
+
+              {/* How You Can Support */}
+              <div>
+                <h3 className="font-serif text-2xl font-semibold text-text-primary mb-4">
+                  How You Can Support the Building Fund
+                </h3>
+                <p className="text-text-secondary leading-relaxed mb-4">
+                  This sacred endeavor can only succeed through the participation of our
+                  community. You can contribute by:
+                </p>
+                <ul className="list-disc list-inside space-y-2 text-text-secondary ml-4 mb-6">
+                  <li>💝 Making a one-time or recurring donation</li>
+                  <li>🧱 Sponsoring bricks, rooms, or sacred spaces</li>
+                  <li>📜 Participating in naming opportunities</li>
+                  <li>🤝 Corporate or foundation gifts</li>
+                  <li>🙏 Volunteering time and skills</li>
+                  <li>📢 Sharing this project with friends and family</li>
+                </ul>
+                <p className="text-text-secondary leading-relaxed">
+                  All donations will go directly towards the construction and temple facilities.
+                </p>
+              </div>
+
+              {/* Transparency & Stewardship */}
+              <div>
+                <h3 className="font-serif text-2xl font-semibold text-text-primary mb-4">
+                  Transparency & Stewardship
+                </h3>
+                <p className="text-text-secondary leading-relaxed mb-4">
+                  We are committed to the responsible management of all funds:
+                </p>
+                <ul className="list-disc list-inside space-y-2 text-text-secondary ml-4">
+                  <li>Financial oversight by the temple board</li>
+                  <li>Regular community updates</li>
+                  <li>Construction milestones shared publicly</li>
+                  <li>Clear accounting of donations and expenses</li>
+                </ul>
+                <p className="text-text-secondary leading-relaxed mt-4">
+                  Your trust is sacred to us.
+                </p>
+              </div>
+
+              {/* Call to Action */}
+              <div className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-xl p-8 border-2 border-primary/20 text-center">
+                <h3 className="font-serif text-2xl font-semibold text-text-primary mb-4">
+                  Join Us in Building Something Eternal
+                </h3>
+                <p className="text-text-secondary leading-relaxed mb-6">
+                  Together, we can create a spiritual home that will uplift hearts and
+                  minds for generations. Let us build this temple—stone by stone, prayer
+                  by prayer, donation by donation.
+                </p>
+                <button
+                  type="button"
+                  zeffy-form-link="https://www.zeffy.com/embed/donation-form/vishnu-mandir-building-fund?modal=true"
+                  className="px-8 py-4 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 inline-flex items-center gap-2"
+                >
+                  <Heart className="w-5 h-5" />
+                  Support the Building Fund
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* What's Happening Now */}
         <section className="mb-20">
           <SectionHeading

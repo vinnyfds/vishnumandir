@@ -175,10 +175,10 @@ export default async function PriestsPage() {
                 <p className="text-text-secondary">
                   Email us at{" "}
                   <a
-                    href="mailto:sakeemj@live.com"
+                    href="mailto:info@vishnumandirtampa.com"
                     className="text-primary hover:text-primary/80 break-all"
                   >
-                    sakeemj@live.com
+                    info@vishnumandirtampa.com
                   </a>{" "}
                   with your service request or questions.
                 </p>

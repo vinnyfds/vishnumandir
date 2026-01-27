@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 };
 
 /**
- * Donate page – one-time donation via Stripe, link to recurring.
+ * Donate page – donations via Zeffy
  */
 export default function DonatePage() {
   const structuredData = generateWebPageSchema({
@@ -47,30 +47,41 @@ export default function DonatePage() {
             </div>
             <div>
               <h2 className="font-serif text-2xl font-semibold text-text-primary mb-4">
-                One-Time Donation
+                Make a Donation
               </h2>
               <p className="text-text-secondary leading-relaxed mb-4">
                 Your generosity helps us maintain the temple, support programs, and serve the community.
-                All donations are tax-deductible.
+                All donations are tax-deductible. Choose one-time or recurring donations using the button below.
               </p>
             </div>
           </div>
-          <DonateForm />
+          <button
+            type="button"
+            zeffy-form-link="https://www.zeffy.com/embed/donation-form/monthly-donor-4?modal=true"
+            className="px-8 py-4 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 flex items-center gap-2"
+          >
+            <Heart className="w-5 h-5" />
+            Donate Now
+          </button>
         </section>
 
         <section className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-xl p-8 border-2 border-primary/5">
           <h2 className="font-serif text-2xl font-semibold text-text-primary mb-4">
-            Recurring Donations
+            About Your Donation
           </h2>
           <p className="text-text-secondary leading-relaxed mb-4">
-            Set up monthly, quarterly, or annual giving for sustained support.
+            When you click the donation button above, you&apos;ll be taken to our secure donation platform where you can:
           </p>
-          <Link
-            href="/recurring-donation"
-            className="inline-block px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-          >
-            Set up recurring donation
-          </Link>
+          <ul className="list-disc list-inside space-y-2 text-text-secondary ml-4 mb-6">
+            <li>Make a one-time donation of any amount</li>
+            <li>Set up monthly, quarterly, or annual recurring donations</li>
+            <li>Choose to remain anonymous or share your information</li>
+            <li>Receive a tax receipt for your donation</li>
+          </ul>
+          <p className="text-text-secondary leading-relaxed">
+            All donations go directly toward maintaining our sacred space, supporting community programs,
+            and serving the Hindu community in Tampa Bay.
+          </p>
         </section>
       </main>
     </>

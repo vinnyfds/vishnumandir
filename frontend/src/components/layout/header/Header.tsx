@@ -15,6 +15,16 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const menuItems = {
+    about: [
+      { href: "/about/board-of-trustees", label: "Board of Trustees" },
+      { href: "/about/contact", label: "Contact" },
+      { href: "/about/location", label: "Location" },
+      { href: "/about/volunteer", label: "Volunteer" },
+      { href: "/about/virtual-visit", label: "Virtual Visit" },
+      { href: "/about/feedback", label: "Feedback" },
+      { href: "/about/faq", label: "FAQ" },
+      { href: "/about/about", label: "About" },
+    ],
     religious: [
       { href: "/religious/puja-schedule", label: "Puja Schedule" },
       { href: "/religious/puja-services", label: "Puja Services" },
@@ -41,15 +51,6 @@ export function Header() {
       { href: "/forms/email-subscription", label: "Email Subscription" },
       { href: "/forms/all-other-forms", label: "All Other Forms" },
     ],
-    about: [
-      { href: "/about/contact", label: "Contact" },
-      { href: "/about/location", label: "Location" },
-      { href: "/about/volunteer", label: "Volunteer" },
-      { href: "/about/virtual-visit", label: "Virtual Visit" },
-      { href: "/about/feedback", label: "Feedback" },
-      { href: "/about/faq", label: "FAQ" },
-      { href: "/about/about", label: "About" },
-    ],
   };
 
   return (
@@ -57,14 +58,14 @@ export function Header() {
       <div className="container mx-auto px-4 py-4">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           {/* Logo */}
-          <div className="relative h-12 md:h-14 w-36 md:w-44 shrink-0">
+          <div className="relative h-16 md:h-20 w-48 md:w-56 shrink-0">
             <Link href="/" className="block relative h-full w-full">
               <Image
                 src="/images/vishnumandir-logo.png"
                 alt="Vishnu Mandir, Tampa - Hindu Temple & Community Center"
                 fill
                 priority
-                sizes="(max-width: 768px) 144px, 176px"
+                sizes="(max-width: 768px) 192px, 224px"
                 className="object-contain object-left"
               />
             </Link>
@@ -72,6 +73,11 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-4 flex-wrap justify-end">
+            <DropdownMenu
+              label="About"
+              items={menuItems.about}
+              href="/about"
+            />
             <Link
               href="/deities"
               className="text-text-primary hover:text-primary font-medium transition-colors"
@@ -115,11 +121,13 @@ export function Header() {
             >
               Online-Puja
             </Link>
-            <DropdownMenu
-              label="About"
-              items={menuItems.about}
-              href="/about"
-            />
+            <button
+              type="button"
+              zeffy-form-link="https://www.zeffy.com/embed/ticketing/vishnu-mandir-memberships?modal=true"
+              className="text-text-primary hover:text-primary font-medium transition-colors"
+            >
+              Become a Member
+            </button>
             <div className="flex items-center gap-3 ml-4 pl-4 border-l border-border">
               <AudioToggle />
               <Link
@@ -168,6 +176,27 @@ export function Header() {
         {mobileMenuOpen && (
           <nav className="md:hidden mt-4 pb-4 border-t border-border pt-4">
             <div className="flex flex-col gap-4">
+              <div>
+                <Link
+                  href="/about"
+                  className="text-text-primary hover:text-primary font-medium transition-colors block mb-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  About
+                </Link>
+                <div className="pl-4 flex flex-col gap-2">
+                  {menuItems.about.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="text-text-secondary hover:text-primary text-sm transition-colors"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
               <Link
                 href="/deities"
                 className="text-text-primary hover:text-primary font-medium transition-colors"
@@ -294,27 +323,14 @@ export function Header() {
               >
                 Online-Puja
               </Link>
-              <div>
-                <Link
-                  href="/about"
-                  className="text-text-primary hover:text-primary font-medium transition-colors block mb-2"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  About
-                </Link>
-                <div className="pl-4 flex flex-col gap-2">
-                  {menuItems.about.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className="text-text-secondary hover:text-primary text-sm transition-colors"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
-                </div>
-              </div>
+              <button
+                type="button"
+                zeffy-form-link="https://www.zeffy.com/embed/ticketing/vishnu-mandir-memberships?modal=true"
+                className="text-text-primary hover:text-primary font-medium transition-colors text-left"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Become a Member
+              </button>
               <div className="flex items-center gap-3 mt-4">
                 <AudioToggle />
                 <Link
