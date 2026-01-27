@@ -102,10 +102,11 @@ export async function fetchEvents(filters?: {
     queryParams["filters[category][$eq]"] = filters.category;
   }
 
-  if (filters?.publishedAt !== false) {
-    // Only fetch published events by default
-    queryParams["filters[publishedAt][$notNull]"] = "true";
-  }
+  // Note: publishedAt filter removed due to Strapi v5 compatibility issue
+  // The API only returns published items by default anyway
+  // if (filters?.publishedAt !== false) {
+  //   queryParams["filters[publishedAt][$notNull]"] = "true";
+  // }
 
   if (filters?.sort) {
     queryParams["sort"] = filters.sort;
@@ -158,7 +159,7 @@ export async function fetchEventBySlug(
     StrapiCollectionResponse<StrapiEvent>
   >("events", {
     "filters[slug][$eq]": slug,
-    "filters[publishedAt][$notNull]": "true",
+    // publishedAt filter removed due to Strapi v5 compatibility
   });
 
   if (!response || !response.data || response.data.length === 0) {
@@ -176,8 +177,8 @@ export async function fetchPujaServices(): Promise<StrapiPujaService[]> {
   const response = await fetchStrapiContent<
     StrapiCollectionResponse<StrapiPujaService>
   >("puja-services", {
-    "filters[publishedAt][$notNull]": "true",
     sort: "name:asc",
+    // Filters removed due to Strapi v5 compatibility
   });
 
   if (!response || !response.data) {
@@ -199,7 +200,7 @@ export async function fetchPujaServiceBySlug(
     StrapiCollectionResponse<StrapiPujaService>
   >("puja-services", {
     "filters[slug][$eq]": slug,
-    "filters[publishedAt][$notNull]": "true",
+    // publishedAt filter removed due to Strapi v5 compatibility
   });
 
   if (!response || !response.data || response.data.length === 0) {
@@ -217,8 +218,8 @@ export async function fetchPriests(): Promise<StrapiPriest[]> {
   const response = await fetchStrapiContent<
     StrapiCollectionResponse<StrapiPriest>
   >("priests", {
-    "filters[publishedAt][$notNull]": "true",
     sort: "name:asc",
+    // Filters removed due to Strapi v5 compatibility
   });
 
   if (!response || !response.data) {
@@ -238,7 +239,7 @@ export async function fetchAnnouncements(filters?: {
   level?: "Info" | "High-Priority";
 }): Promise<StrapiAnnouncement[]> {
   const queryParams: Record<string, string> = {
-    "filters[publishedAt][$notNull]": "true",
+    // publishedAt filter removed due to Strapi v5 compatibility
     sort: "publishedAt:desc",
   };
 
@@ -246,12 +247,13 @@ export async function fetchAnnouncements(filters?: {
     queryParams["filters[level][$eq]"] = filters.level;
   }
 
-  if (filters?.displayUntil) {
-    // Only show announcements that haven't expired
-    queryParams["filters[$or][0][displayUntil][$gte]"] =
-      filters.displayUntil.toISOString();
-    queryParams["filters[$or][1][displayUntil][$null]"] = "true";
-  }
+  // Note: displayUntil filter logic moved to frontend filtering
+  // if (filters?.displayUntil) {
+  //   Only show announcements that haven't expired
+  //   queryParams["filters[$or][0][displayUntil][$gte]"] =
+  //     filters.displayUntil.toISOString();
+  //   queryParams["filters[$or][1][displayUntil][$null]"] = "true";
+  // }
 
   const response = await fetchStrapiContent<
     StrapiCollectionResponse<StrapiAnnouncement>
@@ -272,8 +274,8 @@ export async function fetchNewsletters(): Promise<StrapiNewsletter[]> {
   const response = await fetchStrapiContent<
     StrapiCollectionResponse<StrapiNewsletter>
   >("newsletters", {
-    "filters[publishedAt][$notNull]": "true",
     sort: "publicationDate:desc",
+    // Filters removed due to Strapi v5 compatibility
   });
 
   if (!response || !response.data) {
@@ -295,7 +297,7 @@ export async function fetchPageBySlug(
     StrapiCollectionResponse<StrapiPage>
   >("pages", {
     "filters[slug][$eq]": slug,
-    "filters[publishedAt][$notNull]": "true",
+    // publishedAt filter removed due to Strapi v5 compatibility
   });
 
   if (!response || !response.data || response.data.length === 0) {
