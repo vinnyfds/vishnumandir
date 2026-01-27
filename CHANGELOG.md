@@ -4,6 +4,17 @@ All notable changes to the Vishnu Mandir, Tampa project will be documented in th
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+- fix(forms): Fixed form submissions not syncing to Strapi CMS
+  - Enhanced error logging in `backend/src/services/strapi.service.ts` to capture detailed error responses including status codes, error messages, and API URLs
+  - Created comprehensive guide `docs/deployment/FIX_FORM_SYNC_TO_STRAPI.md` with step-by-step instructions to fix Strapi API token permissions
+  - Root cause: API token lacked `create` permissions for puja-sponsorship, facility-request, and form-submission content types
+  - Solution: Change API token type to "Full access" or add explicit `create` permissions in Strapi Admin Panel
+  - Created `scripts/sync-forms-to-strapi.sh` to backfill existing PostgreSQL records to Strapi CMS
+  - Form submissions now appear in Strapi admin panel after permissions are fixed
+
 **IMPORTANT:** This changelog MUST be updated for EVERY code change, feature addition, bug fix, or configuration update. See `.cursorrules` Section 17 for detailed requirements.
 
 ---

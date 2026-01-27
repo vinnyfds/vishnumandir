@@ -88,15 +88,24 @@ export async function createPujaSponsorship(
   }
 
   try {
-    await strapiClient.post("/puja-sponsorships", { data });
-    console.log(`[strapi.service] Created puja sponsorship in Strapi: ${data.transactionId}`);
+    const response = await strapiClient.post("/puja-sponsorships", { data });
+    console.log(`[strapi.service] Created puja sponsorship in Strapi: ${data.transactionId}`, {
+      statusCode: response.status,
+      strapiId: response.data?.data?.id,
+    });
     return true;
   } catch (error) {
     const axiosError = error as AxiosError;
     console.error(
       `[strapi.service] Failed to create puja sponsorship in Strapi:`,
-      axiosError.response?.status,
-      axiosError.response?.data || axiosError.message
+      {
+        transactionId: data.transactionId,
+        status: axiosError.response?.status,
+        statusText: axiosError.response?.statusText,
+        message: axiosError.message,
+        data: axiosError.response?.data,
+        url: axiosError.config?.url,
+      }
     );
     return false;
   }
@@ -118,15 +127,24 @@ export async function createFacilityRequest(
   }
 
   try {
-    await strapiClient.post("/facility-requests", { data });
-    console.log(`[strapi.service] Created facility request in Strapi: ${data.transactionId}`);
+    const response = await strapiClient.post("/facility-requests", { data });
+    console.log(`[strapi.service] Created facility request in Strapi: ${data.transactionId}`, {
+      statusCode: response.status,
+      strapiId: response.data?.data?.id,
+    });
     return true;
   } catch (error) {
     const axiosError = error as AxiosError;
     console.error(
       `[strapi.service] Failed to create facility request in Strapi:`,
-      axiosError.response?.status,
-      axiosError.response?.data || axiosError.message
+      {
+        transactionId: data.transactionId,
+        status: axiosError.response?.status,
+        statusText: axiosError.response?.statusText,
+        message: axiosError.message,
+        data: axiosError.response?.data,
+        url: axiosError.config?.url,
+      }
     );
     return false;
   }
@@ -148,15 +166,26 @@ export async function createFormSubmission(
   }
 
   try {
-    await strapiClient.post("/form-submissions", { data });
-    console.log(`[strapi.service] Created form submission in Strapi: ${data.transactionId}`);
+    const response = await strapiClient.post("/form-submissions", { data });
+    console.log(`[strapi.service] Created form submission in Strapi: ${data.transactionId}`, {
+      statusCode: response.status,
+      strapiId: response.data?.data?.id,
+      formType: data.formType,
+    });
     return true;
   } catch (error) {
     const axiosError = error as AxiosError;
     console.error(
       `[strapi.service] Failed to create form submission in Strapi:`,
-      axiosError.response?.status,
-      axiosError.response?.data || axiosError.message
+      {
+        transactionId: data.transactionId,
+        formType: data.formType,
+        status: axiosError.response?.status,
+        statusText: axiosError.response?.statusText,
+        message: axiosError.message,
+        data: axiosError.response?.data,
+        url: axiosError.config?.url,
+      }
     );
     return false;
   }
