@@ -38,11 +38,14 @@ export default async function EducationEventsPage() {
     sort: "date:asc",
   });
 
+  // Filter out items with missing attributes
+  const validEvents = allEvents.filter((event) => event?.attributes);
+
   // Debug logging in development
   if (process.env.NODE_ENV === "development") {
     console.log("[education/events] Fetched events:", {
-      total: allEvents.length,
-      events: allEvents.map((e) => ({
+      total: validEvents.length,
+      events: validEvents.map((e) => ({
         title: e.attributes.title,
         category: e.attributes.category,
         date: e.attributes.date,
@@ -56,9 +59,13 @@ export default async function EducationEventsPage() {
   }
 
   // Filter for future events only
-  const futureEvents = allEvents.filter((event) =>
-    isFutureEvent(event.attributes.date, event.attributes.startTime)
-  );
+  const futureEvents = validEvents.filter((event) => {
+    // Guard against undefined date/startTime
+    if (!event.attributes.date || !event.attributes.startTime) {
+      return false;
+    }
+    return isFutureEvent(event.attributes.date, event.attributes.startTime);
+  });
 
   // Debug logging for filtered results
   if (process.env.NODE_ENV === "development") {
