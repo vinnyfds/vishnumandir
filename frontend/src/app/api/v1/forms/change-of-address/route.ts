@@ -1,80 +1,40 @@
 import { NextRequest } from "next/server";
-import { v4 as uuidv4 } from "uuid";
-import { prisma } from "@/lib/prisma";
-import { sendEmail } from "@/lib/email";
-import { createFormSubmission } from "@/lib/strapi-sync";
-import { successResponse, errorResponse, zodIssuesToContractErrors } from "@/lib/api-responses";
-import { changeOfAddressSchema } from "@/lib/schemas/optional-forms";
+import { successResponse, errorResponse } from "@/lib/api-responses";
 
 /**
  * POST /api/v1/forms/change-of-address
- * Handle change of address form submissions.
+ * Proxy endpoint that forwards change of address form submissions to the backend.
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+    const apiKey = process.env.NEXT_PUBLIC_API_KEY;
 
-    const parsed = changeOfAddressSchema.safeParse(body);
-    if (!parsed.success) {
-      const errs = zodIssuesToContractErrors(parsed.error.issues);
-      return errorResponse("Validation failed", 400, errs);
+    if (!apiKey) {
+      return errorResponse("API key not configured", 500);
     }
 
-    const transactionId = `req_${uuidv4().replace(/-/g, "")}`;
-    const data = parsed.data;
-
-    // Save to database
-    const formSubmission = await prisma.formSubmission.create({
-      data: {
-        formType: "CHANGE_OF_ADDRESS",
-        email: data.email,
-        payload: data as any,
-        transactionId,
+    // Forward the request to the backend
+    const response = await fetch(`${backendUrl}/api/v1/forms/change-of-address`, {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "Content-Type": "application/json",
       },
+      body: await request.text(),
     });
 
-    // Sync to Strapi (non-blocking)
-    createFormSubmission({
-      formType: "CHANGE_OF_ADDRESS",
-      email: data.email,
-      name: data.name || undefined,
-      payload: data as any,
-      transactionId,
-      postgresId: formSubmission.id,
-    }).catch((err) => {
-      console.error("[api/v1/forms/change-of-address] Strapi sync error:", err);
-    });
+    const data = await response.json();
 
-    // Send admin notification
-    const adminTo = process.env.ADMIN_EMAIL_ADDRESS;
-    if (adminTo?.trim()) {
-      await sendEmail({
-        to: adminTo,
-        subject: `[Vishnu Mandir] New change of address: ${data.name}`,
-        html: `<p>New change of address submission. Transaction ID: ${transactionId}. Email: ${data.email}.</p>`,
-        replyTo: data.email,
-      });
+    if (!response.ok) {
+      return errorResponse(
+        data.error || "Backend request failed",
+        response.status,
+        data.errors
+      );
     }
 
-    // Send confirmation email
-    const confirmResult = await sendEmail({
-      to: data.email,
-      subject: `Vishnu Mandir – Address update received`,
-      html: `<p>Dear ${data.name},</p><p>We have received your change of address request. We will update our records accordingly.</p><p>Transaction ID: <strong>${transactionId}</strong></p><p>— Vishnu Mandir, Tampa</p>`,
-      replyTo: adminTo || undefined,
-    });
-
-    if ("error" in confirmResult) {
-      console.error("[api/v1/forms/change-of-address] Confirmation email failed:", confirmResult.error);
-    }
-
-    return successResponse(
-      {
-        message: "Your address update has been submitted successfully.",
-        transactionId,
-      },
-      201
-    );
+    return successResponse(data.data, response.status);
   } catch (error) {
     console.error("[api/v1/forms/change-of-address]", error);
     const message = error instanceof Error ? error.message : "Internal server error";
