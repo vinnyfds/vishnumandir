@@ -23,6 +23,11 @@ const CMS_API_TOKEN = process.env.CMS_API_TOKEN || "";
  * Strapi v5 returns: { id: 1, title: "Hello", ... }
  * Frontend expects: { id: 1, attributes: { title: "Hello", ... } }
  * 
+ * CRITICAL: This function must preserve ALL fields correctly:
+ * - id must stay at the top level
+ * - attributes must contain all content fields and metadata
+ * - Must handle both v4 (nested) and v5 (flat) structures
+ * 
  * @param item - Single item from Strapi v5 API
  * @returns Normalized item with attributes wrapper
  */
@@ -30,15 +35,23 @@ function normalizeToV4<T extends { id: number; attributes: Record<string, unknow
   item: Record<string, unknown>
 ): T {
   // If already has attributes structure (v4 format), return as-is
-  if (item.attributes && typeof item.attributes === "object") {
+  if (item.attributes && typeof item.attributes === "object" && !Array.isArray(item.attributes)) {
     return item as T;
   }
 
   // Convert v5 flat structure to v4-like structure
+  // CRITICAL: Preserve id at top level, move everything else to attributes
   const { id, documentId, ...rest } = item;
+  
+  // Ensure id exists and is a number
+  if (typeof id !== 'number' && typeof id !== 'string') {
+    console.error('[normalizeToV4] Invalid id:', id, item);
+    throw new Error('Item missing valid id field');
+  }
+  
   return {
-    id: id as number,
-    attributes: rest,
+    id: typeof id === 'number' ? id : parseInt(String(id), 10),
+    attributes: rest as Record<string, unknown>,
   } as T;
 }
 

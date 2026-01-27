@@ -12,48 +12,84 @@ const CMS_API_URL =
  * Get full URL for a Strapi media/image
  * Strapi returns relative URLs like "/uploads/image.jpg"
  * We need to prepend the CMS base URL (without /api)
+ * 
+ * Handles both Strapi v4 (nested: media.data.attributes.url) 
+ * and v5 (flat: media.url) structures
+ * 
  * @param media - Strapi media object
  * @returns Full URL string or null if no image
  */
 export function getStrapiImageUrl(media: StrapiMedia | undefined): string | null {
-  if (!media?.data?.attributes?.url) {
+  if (!media) {
     return null;
   }
 
-  const baseUrl = CMS_API_URL.replace("/api", "");
-  const imageUrl = media.data.attributes.url;
-
-  // If URL already starts with http, return as-is
-  if (imageUrl.startsWith("http")) {
-    return imageUrl;
+  // Strapi v5: flat structure with url directly accessible
+  if ('url' in media && typeof media.url === 'string') {
+    const imageUrl = media.url;
+    const baseUrl = CMS_API_URL.replace("/api", "");
+    
+    if (imageUrl.startsWith("http")) {
+      return imageUrl;
+    }
+    
+    return `${baseUrl}${imageUrl}`;
   }
 
-  // Otherwise, prepend base URL
-  return `${baseUrl}${imageUrl}`;
+  // Strapi v4: nested structure with data.attributes.url
+  if (media?.data?.attributes?.url) {
+    const baseUrl = CMS_API_URL.replace("/api", "");
+    const imageUrl = media.data.attributes.url;
+
+    if (imageUrl.startsWith("http")) {
+      return imageUrl;
+    }
+
+    return `${baseUrl}${imageUrl}`;
+  }
+
+  return null;
 }
 
 /**
  * Get full URL for a Strapi file (PDF, etc.)
+ * Handles both Strapi v4 (nested: file.data.attributes.url)
+ * and v5 (flat: file.url) structures
  * @param file - Strapi file object (similar structure to media)
  * @returns Full URL string or null if no file
  */
 export function getStrapiFileUrl(
-  file: { data: { attributes: { url: string } } | null } | undefined
+  file: any
 ): string | null {
-  if (!file?.data?.attributes?.url) {
+  if (!file) {
     return null;
   }
 
-  const baseUrl = CMS_API_URL.replace("/api", "");
-  const fileUrl = file.data.attributes.url;
+  // Strapi v5: flat structure with url directly accessible
+  if ('url' in file && typeof file.url === 'string') {
+    const fileUrl = file.url;
+    const baseUrl = CMS_API_URL.replace("/api", "");
 
-  // If URL already starts with http, return as-is
-  if (fileUrl.startsWith("http")) {
-    return fileUrl;
+    if (fileUrl.startsWith("http")) {
+      return fileUrl;
+    }
+
+    return `${baseUrl}${fileUrl}`;
   }
 
-  // Otherwise, prepend base URL
-  return `${baseUrl}${fileUrl}`;
+  // Strapi v4: nested structure with data.attributes.url
+  if (file?.data?.attributes?.url) {
+    const baseUrl = CMS_API_URL.replace("/api", "");
+    const fileUrl = file.data.attributes.url;
+
+    if (fileUrl.startsWith("http")) {
+      return fileUrl;
+    }
+
+    return `${baseUrl}${fileUrl}`;
+  }
+
+  return null;
 }
 
 /**

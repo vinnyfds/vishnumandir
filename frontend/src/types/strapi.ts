@@ -35,9 +35,29 @@ export interface StrapiCollectionResponse<T> {
 
 /**
  * Strapi media/image type
+ * Supports both Strapi v4 (nested structure) and v5 (flat structure)
  */
 export interface StrapiMedia {
-  data: {
+  // Strapi v5 flat structure
+  id?: number;
+  url?: string;
+  name?: string;
+  alternativeText?: string;
+  caption?: string;
+  width?: number;
+  height?: number;
+  formats?: Record<string, unknown>;
+  hash?: string;
+  ext?: string;
+  mime?: string;
+  size?: number;
+  previewUrl?: string;
+  provider?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  
+  // Strapi v4 nested structure (for backward compatibility)
+  data?: {
     id: number;
     attributes: {
       name: string;
