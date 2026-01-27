@@ -8,6 +8,7 @@ import { fetchAnnouncements, fetchEvents } from "@/lib/strapi";
 import { AnnouncementCard } from "@/components/shared/AnnouncementCard";
 import { EventCard } from "@/components/shared/EventCard";
 import { isFutureEvent } from "@/lib/strapi-utils";
+import { ZeffyButton } from "@/components/ui/ZeffyButton";
 
 export const metadata: Metadata = {
   title: "Vishnu Mandir, Tampa - Hindu Temple & Community Center | Puja Schedules & Events",
@@ -147,15 +148,14 @@ export default async function HomePage() {
             programs.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <button
-              type="button"
-              zeffy-form-link="https://www.zeffy.com/embed/donation-form/monthly-donor-4?modal=true"
+            <ZeffyButton
+              formLink="https://www.zeffy.com/embed/donation-form/monthly-donor-4?modal=true"
               className="group relative px-8 py-4 bg-primary text-white rounded-lg font-semibold shadow-lg shadow-primary/20 hover:bg-primary/90 hover:shadow-primary/30 transition-all duration-300 overflow-hidden"
             >
               <span className="relative z-10 flex items-center gap-2">
                 Make a Donation <Heart className="w-4 h-4" />
               </span>
-            </button>
+            </ZeffyButton>
             <Link
               href="/calendar"
               className="group px-8 py-4 bg-white/90 text-primary border-2 border-primary/20 rounded-lg font-semibold hover:bg-white hover:border-primary/30 transition-all duration-300 flex items-center gap-2"
@@ -349,14 +349,13 @@ export default async function HomePage() {
                   minds for generations. Let us build this temple—stone by stone, prayer
                   by prayer, donation by donation.
                 </p>
-                <button
-                  type="button"
-                  zeffy-form-link="https://www.zeffy.com/embed/donation-form/vishnu-mandir-building-fund?modal=true"
+                <ZeffyButton
+                  formLink="https://www.zeffy.com/embed/donation-form/vishnu-mandir-building-fund?modal=true"
                   className="px-8 py-4 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 inline-flex items-center gap-2"
                 >
                   <Heart className="w-5 h-5" />
                   Support the Building Fund
-                </button>
+                </ZeffyButton>
               </div>
             </div>
           </div>

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { generateWebPageSchema } from "@/lib/seo";
 import { Heart } from "lucide-react";
 import { DonateForm } from "@/components/forms/DonateForm";
+import { ZeffyButton } from "@/components/ui/ZeffyButton";
 
 export const metadata: Metadata = {
   title: "Donate | Vishnu Mandir, Tampa - Support the Temple",
@@ -55,14 +56,13 @@ export default function DonatePage() {
               </p>
             </div>
           </div>
-          <button
-            type="button"
-            zeffy-form-link="https://www.zeffy.com/embed/donation-form/monthly-donor-4?modal=true"
+          <ZeffyButton
+            formLink="https://www.zeffy.com/embed/donation-form/monthly-donor-4?modal=true"
             className="px-8 py-4 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 flex items-center gap-2"
           >
             <Heart className="w-5 h-5" />
             Donate Now
-          </button>
+          </ZeffyButton>
         </section>
 
         <section className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-xl p-8 border-2 border-primary/5">

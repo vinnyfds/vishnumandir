@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { generateWebPageSchema } from "@/lib/seo";
 import { Heart, Gift, Users, FileText, ArrowRight } from "lucide-react";
+import { ZeffyButton } from "@/components/ui/ZeffyButton";
 
 export const metadata: Metadata = {
   title: "Support | Vishnu Mandir, Tampa - Ways to Support the Temple",
@@ -137,14 +138,13 @@ export default function SupportPage() {
               Join our temple community as a member and enjoy exclusive benefits, priority event
               access, and deeper spiritual engagement.
             </p>
-            <button
-              type="button"
-              zeffy-form-link="https://www.zeffy.com/embed/ticketing/vishnu-mandir-memberships?modal=true"
+            <ZeffyButton
+              formLink="https://www.zeffy.com/embed/ticketing/vishnu-mandir-memberships?modal=true"
               className="inline-flex items-center gap-2 text-text-primary font-semibold group-hover:gap-3 transition-all hover:text-primary"
             >
               Join Now
               <ArrowRight className="w-4 h-4" />
-            </button>
+            </ZeffyButton>
           </div>
         </div>
 

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { DropdownMenu } from "@/components/ui/DropdownMenu";
 import { AudioToggle } from "@/components/audio/AudioToggle";
+import { handleZeffyClick } from "@/lib/zeffy";
 
 /**
  * Header component for the public site, displaying logo, tagline, and navigation.
@@ -141,7 +142,8 @@ export function Header() {
               <AudioToggle />
               <button
                 type="button"
-                zeffy-form-link="https://www.zeffy.com/embed/donation-form/monthly-donor-4?modal=true"
+                data-zeffy-form-link="https://www.zeffy.com/embed/donation-form/monthly-donor-4?modal=true"
+                onClick={handleZeffyClick}
                 className="bg-primary text-white px-4 py-2 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
               >
                 Donate
@@ -326,9 +328,12 @@ export function Header() {
                       <button
                         key={item.href}
                         type="button"
-                        zeffy-form-link={item.zeffyLink}
+                        data-zeffy-form-link={item.zeffyLink}
+                        onClick={(e) => {
+                          handleZeffyClick(e as React.MouseEvent<HTMLButtonElement>);
+                          setMobileMenuOpen(false);
+                        }}
                         className="text-text-secondary hover:text-primary text-sm transition-colors text-left"
-                        onClick={() => setMobileMenuOpen(false)}
                       >
                         {item.label}
                       </button>
@@ -349,9 +354,12 @@ export function Header() {
                 <AudioToggle />
                 <button
                   type="button"
-                  zeffy-form-link="https://www.zeffy.com/embed/donation-form/monthly-donor-4?modal=true"
+                  data-zeffy-form-link="https://www.zeffy.com/embed/donation-form/monthly-donor-4?modal=true"
+                  onClick={(e) => {
+                    handleZeffyClick(e);
+                    setMobileMenuOpen(false);
+                  }}
                   className="flex-1 bg-primary text-white px-4 py-2 rounded-lg font-semibold hover:bg-primary/90 transition-colors text-center"
-                  onClick={() => setMobileMenuOpen(false)}
                 >
                   Donate
                 </button>
