@@ -51,6 +51,12 @@ export default function RootLayout({
         <Script
           src="https://zeffy-scripts.s3.ca-central-1.amazonaws.com/embed-form-script.min.js"
           strategy="afterInteractive"
+          onLoad={() => {
+            // Dispatch event to notify that Zeffy script has loaded
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(new Event('zeffy-script-loaded'));
+            }
+          }}
         />
       </body>
     </html>

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DropdownMenu } from "@/components/ui/DropdownMenu";
 import { AudioToggle } from "@/components/audio/AudioToggle";
 
@@ -13,6 +13,29 @@ import { AudioToggle } from "@/components/audio/AudioToggle";
  */
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Initialize Zeffy buttons when script loads
+  useEffect(() => {
+    const initializeZeffy = () => {
+      if (typeof window !== 'undefined' && (window as any).Zeffy) {
+        (window as any).Zeffy.bind?.();
+      }
+    };
+
+    // Try to initialize immediately in case script is already loaded
+    initializeZeffy();
+
+    // Also listen for the script load event
+    window.addEventListener('zeffy-script-loaded', initializeZeffy);
+    
+    // Fallback: check after a delay in case event doesn't fire
+    const timer = setTimeout(initializeZeffy, 1000);
+
+    return () => {
+      window.removeEventListener('zeffy-script-loaded', initializeZeffy);
+      clearTimeout(timer);
+    };
+  }, []);
 
   const menuItems = {
     about: [

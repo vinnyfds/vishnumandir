@@ -11,9 +11,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Fixed
-- fix(script): Fixed Amplify deployment failure by moving Zeffy script component - frontend/src/app/layout.tsx - Moved Script component from `<head>` tag to `<body>` tag for Next.js App Router compatibility - Removed `onLoad` handler that was causing SSR prerendering errors ("Event handlers cannot be passed to Client Component props") - Script still loads with `strategy="afterInteractive"` for proper timing before user interactions
-- fix(donations): Fixed Zeffy donation buttons not working on first click - frontend/src/app/layout.tsx - Replaced plain script tag with Next.js Script component using `strategy="afterInteractive"` - Added onLoad handler to dispatch zeffy-script-loaded event - Ensures script loads after page becomes interactive before buttons are clickable
-- fix(donations): Converted header and hero "Donate" links to Zeffy buttons - frontend/src/components/layout/header/Header.tsx, frontend/src/app/(site)/page.tsx - Changed from Next.js Link to button elements with zeffy-form-link attribute - Links to: https://www.zeffy.com/embed/donation-form/monthly-donor-4?modal=true - Ensures buttons work immediately when clicked
+- fix(donations): Enhanced Zeffy donation button initialization and support - frontend/src/app/layout.tsx, frontend/src/components/layout/header/Header.tsx - Added onLoad callback to dispatch zeffy-script-loaded event when Zeffy script loads - Added useEffect hook to Header component to initialize Zeffy buttons when script loads - Added fallback timer to ensure buttons work even if event doesn't fire - Ensures donate buttons work reliably across all pages (header, home, support page) - Resolves "Donate buttons not working" issue by properly initializing Zeffy form bindings
+- fix(routing): Created missing pages causing 404 errors for navigation links:
+  - frontend/src/app/(site)/calendar/page.tsx - Main calendar hub page with links to sub-pages and upcoming events preview - Aggregates current events, annual calendar, and newsletter archive
+  - frontend/src/app/(site)/support/page.tsx - Support hub page with donation, sponsorship, membership, and volunteer options - Provides overview of ways to support the temple
+  - frontend/src/app/(site)/privacy-policy/page.tsx - Complete privacy policy with 13 sections covering data collection, security, third-party services, and user rights
+  - frontend/src/app/(site)/terms-of-service/page.tsx - Complete terms of service with 15 sections covering donations, payments, facility rentals, liability, and governing law
+  - Resolves console 404 errors for /calendar, /support, /privacy-policy, /terms-of-service routes referenced in Header dropdown and Footer
+
+### Added
+- feat(pages): Added comprehensive legal and informational pages for better site structure and compliance
+  - Privacy Policy page includes sections on data collection, security, third-party services, cookies, user rights, and contact information
+  - Terms of Service page includes sections on donations, payment processing, puja sponsorships, facility rentals, and limitation of liability
+  - Calendar hub page provides central location for viewing all events and accessing calendar sub-sections
+  - Support hub page provides central location for all donation and support options
 
 ### Changed
 - refactor(ui): Replaced PNG logo with SVG for better scaling - frontend/src/components/layout/header/Header.tsx - Changed from /images/vishnumandir-logo.png to /images/vishnumandir logo.svg - Increased logo size from h-16 md:h-20 w-48 md:w-56 to h-20 md:h-24 w-56 md:w-64 - Updated sizes prop to (max-width: 768px) 224px, 256px - SVG scales better and is more visible to users
