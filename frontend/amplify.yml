@@ -3,22 +3,14 @@ applications:
   - appRoot: frontend
     frontend:
       buildPath: /
-      envType: frontend
-      env:
-        SKIP_PRISMA_VALIDATION: 'true'
-        NODE_OPTIONS: '--max-old-space-size=4096'
       phases:
         preBuild:
           commands:
             - npm install -g pnpm
             - pnpm install --frozen-lockfile
-            - npx prisma generate
         build:
           commands:
             - cd frontend && pnpm run build
-        postBuild:
-          commands:
-            - echo 'Build complete'
       artifacts:
         baseDirectory: frontend/.next
         files:
