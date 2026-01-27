@@ -272,7 +272,7 @@ async function submitOptionalForm(
     const transactionId = `req_${uuidv4().replace(/-/g, "")}`;
     const payload = data as Record<string, unknown>;
     const formSubmission = await prisma.formSubmission.create({
-      data: { formType, email: data.email, payload, transactionId },
+      data: { formType, email: data.email, payload: payload as any, transactionId },
     });
 
     // Sync to Strapi (non-blocking)
