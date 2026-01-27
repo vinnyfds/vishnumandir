@@ -45,14 +45,67 @@ ENDSSH
 # Install dependencies and build
 echo "🔨 Building backend..."
 ssh -i "$SSH_KEY" "$SSH_USER@$INSTANCE_IP" << 'ENDSSH'
-  cd /home/ubuntu/vishnu-mandir-tampa/backend
+  cd /home/ubuntu/vishnu-mandir-tampa
+  npx prisma generate
+  cd backend
   npm install
   npm run build
 ENDSSH
 
-# Create .env file (user needs to provide values)
-echo "⚠️  Note: You need to create .env file on the server with production values"
-echo "   Location: $PROJECT_DIR/backend/.env"
+# Verify and create .env file if needed
+echo "🔍 Verifying backend environment variables..."
+ssh -i "$SSH_KEY" "$SSH_USER@$INSTANCE_IP" << 'ENDSSH'
+  cd /home/ubuntu/vishnu-mandir-tampa/backend
+  
+  ENV_FILE=".env"
+  
+  # Check if .env exists
+  if [ ! -f "$ENV_FILE" ]; then
+    echo "⚠️  .env file not found. Checking for template..."
+    
+    # Try to use template from scripts
+    if [ -f "../scripts/backend-env-template.txt" ]; then
+      echo "📋 Creating .env from template..."
+      cp ../scripts/backend-env-template.txt "$ENV_FILE"
+      echo "✅ .env created from template at $PROJECT_DIR/backend/.env"
+      echo "⚠️  IMPORTANT: Verify these values are correct:"
+      echo "   - DATABASE_URL (RDS endpoint)"
+      echo "   - CMS_API_URL (should be http://cms.vishnumandirtampa.com:1337/api)"
+      echo "   - CMS_API_TOKEN (should be set)"
+      echo "   - STRIPE_SECRET_KEY"
+      echo "   - RESEND_API_KEY"
+    else
+      echo "❌ Template file not found at ../scripts/backend-env-template.txt"
+      echo "   Please manually create .env file with required variables"
+      exit 1
+    fi
+  else
+    echo "✅ .env file exists"
+  fi
+  
+  # Verify critical variables are set
+  if grep -q "^CMS_API_TOKEN=" "$ENV_FILE" && [ "$(grep '^CMS_API_TOKEN=' "$ENV_FILE" | cut -d'=' -f2)" != "" ]; then
+    echo "✅ CMS_API_TOKEN is set"
+  else
+    echo "❌ ERROR: CMS_API_TOKEN is not set in .env"
+    echo "   This is required for Strapi form sync to work"
+    exit 1
+  fi
+  
+  if grep -q "^CMS_API_URL=" "$ENV_FILE" && [ "$(grep '^CMS_API_URL=' "$ENV_FILE" | cut -d'=' -f2)" != "" ]; then
+    echo "✅ CMS_API_URL is set"
+  else
+    echo "❌ ERROR: CMS_API_URL is not set in .env"
+    exit 1
+  fi
+  
+  if grep -q "^DATABASE_URL=" "$ENV_FILE" && [ "$(grep '^DATABASE_URL=' "$ENV_FILE" | cut -d'=' -f2)" != "" ]; then
+    echo "✅ DATABASE_URL is set"
+  else
+    echo "❌ ERROR: DATABASE_URL is not set in .env"
+    exit 1
+  fi
+ENDSSH
 
 # Start/restart with PM2
 echo "🔄 Starting backend service with PM2..."

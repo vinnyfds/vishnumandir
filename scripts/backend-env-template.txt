@@ -31,4 +31,4 @@ ADMIN_EMAIL_ADDRESS="admin@vishnumandirtampa.com"
 FRONTEND_URL="https://vishnumandirtampa.com"
 AMPLIFY_DOMAIN="https://vishnumandirtampa.com"
 CMS_API_URL="http://cms.vishnumandirtampa.com:1337/api"
-CMS_API_TOKEN=
+CMS_API_TOKEN=2abbbec06f6d64146f8b9a77953d381aea3a70b27a3fe950814954738b1c3f11c60a96605fc85fc615d82bdb1844c79a980f1a7bdf5e81e02e1020531cc3443ba1319f05490f88bce2500467955f93fec18d9e41839538ab36a19b5ed11e509aea54b004466ba3492c91102f8a476ccd1c68ce4421166a553ed58a66d007bd87
