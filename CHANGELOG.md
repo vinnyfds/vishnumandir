@@ -10,6 +10,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Fixed
+- fix(api): Fixed form submissions returning "Unexpected token '-', '------WebK'... is not valid JSON" error - frontend/src/app/api/v1/forms/sponsorship/route.ts, facility-request/route.ts, donation-statement/route.ts, email-subscription/route.ts, change-of-address/route.ts - Properly forwarded multipart/form-data by preserving Content-Type header and multipart boundaries - Changed request body handling from `request.text()` with incorrect JSON Content-Type to `request.arrayBuffer()` with original Content-Type - Added Content-Type validation before parsing backend response to gracefully handle non-JSON error responses - Improved error handling to detect and report HTML error pages instead of crashing on JSON parse - All form routes now properly handle both multipart and JSON payloads - Backend responses are now correctly parsed as JSON - Users see proper error messages instead of parsing errors
+
 ### Added
 - feat(diagnostics): Enhanced /api/debug/cms endpoint with response time metrics and improved error detection - frontend/src/app/api/debug/cms/route.ts - Added responseTimeMs to track API performance - Distinguishes between auth errors (401/403), timeouts, and connectivity issues - Provides specific recommendations based on error type - Calculates average response time for performance monitoring
 - docs(deployment): Created CMS_CONTENT_NOT_DISPLAYING_QUICK_FIX.md - Quick troubleshooting guide for when CMS content isn't visible - Explains ISR caching and 5-minute revalidation - Clear instructions to redeploy frontend for immediate results - Includes verification steps and common scenarios
