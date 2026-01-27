@@ -11,6 +11,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Added
+- feat(diagnostics): Enhanced /api/debug/cms endpoint with response time metrics and improved error detection - frontend/src/app/api/debug/cms/route.ts - Added responseTimeMs to track API performance - Distinguishes between auth errors (401/403), timeouts, and connectivity issues - Provides specific recommendations based on error type - Calculates average response time for performance monitoring
+- docs(deployment): Created CMS_CONTENT_NOT_DISPLAYING_QUICK_FIX.md - Quick troubleshooting guide for when CMS content isn't visible - Explains ISR caching and 5-minute revalidation - Clear instructions to redeploy frontend for immediate results - Includes verification steps and common scenarios
+- docs(deployment): Created FIX_CMS_PRODUCTION_DISPLAY.md - Comprehensive step-by-step guide to fix all CMS content display issues - Step 1-5 covering environment variables, token testing, permissions, content verification, and cache clearing - Common issues and solutions with curl examples
+- docs(deployment): Created CMS_FIX_IMPLEMENTATION_CHECKLIST.md - Complete 7-phase implementation checklist with success criteria - All required tasks for verifying and fixing CMS content display - Final verification and monitoring guidance
+
+### Fixed
+- fix(diagnostics): Enhanced CMS debug endpoint to provide actionable error messages - Now distinguishes auth errors from connectivity/timeout issues - Provides specific recommendations for each error type
+- fix(docs): Verified all environment variables are correctly set in Amplify Console - CMS_API_URL and CMS_API_TOKEN properly configured - Confirmed API connectivity working with fallback values
+
+### Added
 - feat(api): Created Next.js API route handlers for all form submissions to replace external Express backend - frontend/src/app/api/v1/forms/sponsorship/route.ts - Handles multipart/form-data with Zod validation - frontend/src/app/api/v1/forms/facility-request/route.ts - Handles facility request JSON submissions - frontend/src/app/api/v1/forms/email-subscription/route.ts - Handles email subscription form - frontend/src/app/api/v1/forms/donation-statement/route.ts - Handles donation statement requests - frontend/src/app/api/v1/forms/change-of-address/route.ts - Handles change of address submissions - All handlers validate input, save to PostgreSQL via Prisma, sync to Strapi CMS, and send confirmation emails - Fixes issue where forms could not submit in production due to unavailable external backend
 - feat(lib): Created shared Prisma client instance for Next.js API routes - frontend/src/lib/prisma.ts - Singleton pattern prevents multiple instances in development - Properly configured for production deployment
 - feat(lib): Created email service wrapper for Next.js API routes - frontend/src/lib/email.ts - Wraps Resend email service - Provides unified SendEmail function with error handling - Used by all form handlers for confirmation and admin notification emails
