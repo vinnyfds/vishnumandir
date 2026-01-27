@@ -7,15 +7,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Fixed
-- fix(forms): Enhanced form submission error handling and backend CORS configuration
-  - Added detailed error logging in all form API routes (facility-request, sponsorship, email-subscription, donation-statement, change-of-address)
-  - Added warnings when NEXT_PUBLIC_API_URL defaults to localhost in production
-  - Improved error messages for fetch failures to help diagnose backend connectivity issues
-  - Updated backend CORS to dynamically allow Amplify domains (including *.amplifyapp.com pattern)
-  - Backend CORS now uses origin validation function instead of static list for better flexibility
-  - Files modified:
-    - `frontend/src/app/api/v1/forms/*/route.ts` - Enhanced error handling and logging
-    - `backend/src/config/corsOptions.ts` - Dynamic origin validation for Amplify domains
+- fix(forms): Fixed frontend form submission failures by ensuring CORS allows Amplify domains
+  - Updated `backend/src/config/corsOptions.ts` to properly handle Amplify domain origins using function-based origin checking
+  - CORS now allows requests from `*.amplifyapp.com` domains for production deployments
+  - Root cause: Frontend forms failing with "fetch failed" because Next.js API routes couldn't reach backend due to missing `NEXT_PUBLIC_API_URL` environment variable in Amplify
+  - Solution: CORS updated to support Amplify domains; `NEXT_PUBLIC_API_URL` must be set in AWS Amplify Console to `http://34.206.184.139:4000`
 - fix(forms): Fixed form submissions not syncing to Strapi CMS by correcting CMS_API_URL configuration
   - Updated `scripts/backend-env-template.txt` to use HTTPS URL without port 1337 - `CMS_API_URL="https://cms.vishnumandirtampa.com/api"`
   - Changed production backend `.env` file to use correct HTTPS endpoint

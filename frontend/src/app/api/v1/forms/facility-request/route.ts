@@ -10,18 +10,9 @@ export async function POST(request: NextRequest) {
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
     const apiKey = process.env.NEXT_PUBLIC_API_KEY;
 
-    // Warn if using localhost in production (indicates missing env var)
-    if (backendUrl.includes("localhost") && process.env.NODE_ENV === "production") {
-      console.error("[api/v1/forms/facility-request] WARNING: NEXT_PUBLIC_API_URL not set, using localhost fallback:", backendUrl);
-    }
-
     if (!apiKey) {
-      console.error("[api/v1/forms/facility-request] ERROR: NEXT_PUBLIC_API_KEY not configured");
       return errorResponse("API key not configured", 500);
     }
-
-    const targetUrl = `${backendUrl}/api/v1/forms/facility-request`;
-    console.log("[api/v1/forms/facility-request] Proxying to backend:", targetUrl);
 
     // Get the original Content-Type header
     const contentType = request.headers.get("content-type") || "";
@@ -42,7 +33,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Forward the request to the backend
-    const response = await fetch(targetUrl, {
+    const response = await fetch(`${backendUrl}/api/v1/forms/facility-request`, {
       method: "POST",
       headers,
       body,
@@ -85,20 +76,8 @@ export async function POST(request: NextRequest) {
 
     return successResponse(data.data || data, response.status);
   } catch (error) {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
-    console.error("[api/v1/forms/facility-request] Fetch error:", {
-      error: error instanceof Error ? error.message : String(error),
-      backendUrl,
-      targetUrl: `${backendUrl}/api/v1/forms/facility-request`,
-    });
+    console.error("[api/v1/forms/facility-request]", error);
     const message = error instanceof Error ? error.message : "Internal server error";
-    // Provide more helpful error message if fetch fails
-    if (error instanceof TypeError && error.message.includes("fetch")) {
-      return errorResponse(
-        `Unable to connect to backend server. Please check NEXT_PUBLIC_API_URL configuration.`,
-        500
-      );
-    }
     return errorResponse(message, 500);
   }
 }
