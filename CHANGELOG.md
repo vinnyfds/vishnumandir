@@ -7,6 +7,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Fixed
+- fix(backend): Fixed backend service crashing due to missing Prisma Client initialization
+  - Regenerated Prisma Client on production server and copied to backend node_modules
+  - Backend service now running and accessible on port 4000
+  - Root cause: Prisma Client was not properly generated/copied after deployment
+  - Forms can now successfully reach backend API from frontend
 - fix(forms): Fixed frontend form submission failures by ensuring CORS allows Amplify domains
   - Updated `backend/src/config/corsOptions.ts` to properly handle Amplify domain origins using function-based origin checking
   - CORS now allows requests from `*.amplifyapp.com` domains for production deployments
