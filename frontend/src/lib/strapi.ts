@@ -316,7 +316,8 @@ export async function fetchAnnouncements(filters?: {
   level?: "Info" | "High-Priority";
 }): Promise<StrapiAnnouncement[]> {
   const queryParams: Record<string, string> = {
-    // publishedAt filter removed due to Strapi v5 compatibility
+    // Ensure only published announcements are returned
+    "filters[publishedAt][$notNull]": "true",
     sort: "publishedAt:desc",
   };
 
@@ -339,14 +340,49 @@ export async function fetchAnnouncements(filters?: {
   >("announcements", queryParams);
 
   if (!response || !response.data) {
+    if (process.env.NODE_ENV === "development") {
+      console.log("[strapi] fetchAnnouncements - No API response or empty data");
+    }
     return [];
   }
 
+  // Debug: Log raw API response count
+  if (process.env.NODE_ENV === "development") {
+    console.log("[strapi] fetchAnnouncements - Raw API response:", {
+      count: Array.isArray(response.data) ? response.data.length : 1,
+      sampleItem: Array.isArray(response.data) ? response.data[0] : response.data,
+    });
+  }
+
   // Normalize Strapi v5 flat response to v4-like structure
-  const normalizedAnnouncements = normalizeArrayToV4<StrapiAnnouncement>(response.data);
+  let normalizedAnnouncements: StrapiAnnouncement[] = [];
+  try {
+    normalizedAnnouncements = normalizeArrayToV4<StrapiAnnouncement>(response.data);
+    if (process.env.NODE_ENV === "development") {
+      console.log("[strapi] fetchAnnouncements - After normalization:", {
+        count: normalizedAnnouncements.length,
+        sampleItem: normalizedAnnouncements[0],
+      });
+    }
+  } catch (error) {
+    console.error("[strapi] fetchAnnouncements - Normalization failed:", error);
+    return [];
+  }
 
   // Client-side filtering for announcements
   let filteredAnnouncements = normalizedAnnouncements;
+
+  // Filter by publishedAt to ensure only published items (client-side backup)
+  filteredAnnouncements = filteredAnnouncements.filter((announcement) => {
+    return announcement?.attributes?.publishedAt !== null;
+  });
+
+  if (process.env.NODE_ENV === "development") {
+    console.log("[strapi] publishedAt filter applied client-side:", {
+      beforeFilter: normalizedAnnouncements.length,
+      afterFilter: filteredAnnouncements.length,
+    });
+  }
 
   // Filter by level if specified
   if (filters?.level) {
@@ -357,7 +393,8 @@ export async function fetchAnnouncements(filters?: {
     if (process.env.NODE_ENV === "development") {
       console.log("[strapi] Level filter applied client-side:", {
         requestedLevel: filters.level,
-        afterLevelFilter: filteredAnnouncements.length,
+        beforeFilter: normalizedAnnouncements.length,
+        afterFilter: filteredAnnouncements.length,
       });
     }
   }
@@ -365,6 +402,8 @@ export async function fetchAnnouncements(filters?: {
   // Filter by displayUntil date (only show non-expired announcements)
   if (filters?.displayUntil) {
     const now = filters.displayUntil;
+    const beforeDisplayUntilFilter = filteredAnnouncements.length;
+    
     filteredAnnouncements = filteredAnnouncements.filter((announcement) => {
       const displayUntil = announcement?.attributes?.displayUntil;
       // Show if no displayUntil set, or if displayUntil is in the future
@@ -373,8 +412,17 @@ export async function fetchAnnouncements(filters?: {
       }
       try {
         const expiryDate = new Date(displayUntil);
-        return expiryDate > now;
-      } catch {
+        const isValid = expiryDate > now;
+        if (process.env.NODE_ENV === "development" && !isValid) {
+          console.log("[strapi] Filtered out announcement - displayUntil in past:", {
+            title: announcement?.attributes?.title,
+            displayUntil,
+            now,
+          });
+        }
+        return isValid;
+      } catch (error) {
+        console.error("[strapi] Failed to parse displayUntil date:", displayUntil, error);
         return true; // If date parsing fails, include the announcement
       }
     });
@@ -382,16 +430,23 @@ export async function fetchAnnouncements(filters?: {
     if (process.env.NODE_ENV === "development") {
       console.log("[strapi] displayUntil filter applied client-side:", {
         filterDate: filters.displayUntil.toISOString(),
-        afterDisplayUntilFilter: filteredAnnouncements.length,
+        beforeFilter: beforeDisplayUntilFilter,
+        afterFilter: filteredAnnouncements.length,
       });
     }
   }
 
   if (process.env.NODE_ENV === "development") {
-    console.log("[strapi] fetchAnnouncements filtered:", {
+    console.log("[strapi] fetchAnnouncements - Final result:", {
       totalAnnouncements: filteredAnnouncements.length,
       level: filters?.level,
       displayUntilFilter: !!filters?.displayUntil,
+      announcements: filteredAnnouncements.map((a) => ({
+        id: a.id,
+        title: a.attributes?.title,
+        publishedAt: a.attributes?.publishedAt,
+        displayUntil: a.attributes?.displayUntil,
+      })),
     });
   }
 

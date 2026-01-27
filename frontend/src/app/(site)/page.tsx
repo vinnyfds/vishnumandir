@@ -49,8 +49,25 @@ export default async function HomePage() {
     displayUntil: today,
   });
 
+  if (process.env.NODE_ENV === "development") {
+    console.log("[HomePage] Announcements after fetchAnnouncements:", {
+      count: allAnnouncements.length,
+      items: allAnnouncements.map((a) => ({
+        id: a.id,
+        title: a.attributes?.title,
+        publishedAt: a.attributes?.publishedAt,
+      })),
+    });
+  }
+
   // Filter out items with missing attributes
   const validAnnouncements = allAnnouncements.filter((announcement) => announcement?.attributes);
+
+  if (process.env.NODE_ENV === "development") {
+    console.log("[HomePage] Announcements after validating attributes:", {
+      count: validAnnouncements.length,
+    });
+  }
 
   // Sort: High-Priority first, then by publishedAt (newest first)
   const sortedAnnouncements = [...validAnnouncements].sort((a, b) => {
@@ -64,6 +81,16 @@ export default async function HomePage() {
     const dateB = new Date(b.attributes.publishedAt || b.attributes.createdAt);
     return dateB.getTime() - dateA.getTime();
   });
+
+  if (process.env.NODE_ENV === "development") {
+    console.log("[HomePage] Announcements after sorting:", {
+      count: sortedAnnouncements.length,
+      items: sortedAnnouncements.map((a) => ({
+        title: a.attributes?.title,
+        level: a.attributes?.level,
+      })),
+    });
+  }
 
   // Fetch featured/upcoming events (limit to 6)
   const allEvents = await fetchEvents({
