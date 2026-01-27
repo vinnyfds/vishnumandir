@@ -18,6 +18,7 @@ interface DiagnosticResult {
   totalCount?: number;
   error?: string;
   timestamp: string;
+  responseTimeMs?: number;
 }
 
 interface EnvironmentInfo {
@@ -34,7 +35,7 @@ async function testCmsEndpoint(
   cmsApiUrl: string,
   cmsApiToken: string
 ): Promise<DiagnosticResult> {
-  const startTime = new Date();
+  const startTime = Date.now();
 
   try {
     const url = new URL(`${cmsApiUrl}/${endpoint}`);
@@ -59,6 +60,8 @@ async function testCmsEndpoint(
     });
 
     clearTimeout(timeoutId);
+    const responseTimeMs = Date.now() - startTime;
+    const timestamp = new Date(startTime).toISOString();
 
     const data = await response.json();
 
@@ -68,7 +71,8 @@ async function testCmsEndpoint(
         status: 'error',
         httpCode: response.status,
         error: data?.error?.message || `HTTP ${response.status}`,
-        timestamp: startTime.toISOString(),
+        timestamp,
+        responseTimeMs,
       };
     }
 
@@ -79,7 +83,8 @@ async function testCmsEndpoint(
         status: 'error',
         httpCode: response.status,
         error: 'Invalid response structure: data is not an array',
-        timestamp: startTime.toISOString(),
+        timestamp,
+        responseTimeMs,
       };
     }
 
@@ -93,7 +98,8 @@ async function testCmsEndpoint(
         httpCode: response.status,
         itemCount: 0,
         totalCount: 0,
-        timestamp: startTime.toISOString(),
+        timestamp,
+        responseTimeMs,
       };
     }
 
@@ -103,17 +109,21 @@ async function testCmsEndpoint(
       httpCode: response.status,
       itemCount,
       totalCount,
-      timestamp: startTime.toISOString(),
+      timestamp,
+      responseTimeMs,
     };
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : 'Unknown error';
+    const responseTimeMs = Date.now() - startTime;
+    const timestamp = new Date(startTime).toISOString();
 
     return {
       endpoint,
       status: 'error',
       error: errorMessage,
-      timestamp: startTime.toISOString(),
+      timestamp,
+      responseTimeMs,
     };
   }
 }
@@ -161,15 +171,30 @@ export async function GET() {
 
   // Build recommendations
   const recommendations: string[] = [];
+  
+  // Calculate average response time
+  const avgResponseTime = diagnosticResults.reduce((sum, r) => sum + (r.responseTimeMs || 0), 0) / diagnosticResults.length;
 
   if (summary.errors > 0) {
-    recommendations.push(
-      'API connectivity issues detected. Verify CMS_API_TOKEN and CMS_API_URL environment variables.'
-    );
-    recommendations.push(
-      'Check Strapi API token has proper permissions (find, findOne for each content type).'
-    );
-    recommendations.push('Verify Strapi server is running and accessible.');
+    const errorResults = diagnosticResults.filter((r) => r.status === 'error');
+    const hasAuthErrors = errorResults.some((r) => r.httpCode === 401 || r.httpCode === 403);
+    const hasTimeoutErrors = errorResults.some((r) => r.error?.includes('AbortError'));
+    
+    if (hasAuthErrors) {
+      recommendations.push('⚠️ Authentication errors detected (HTTP 401/403)');
+      recommendations.push('ACTION: Update CMS_API_TOKEN in Amplify environment variables');
+      recommendations.push('Or verify token has Full access permissions in Strapi: Settings → API Tokens → Edit token');
+    }
+    
+    if (hasTimeoutErrors) {
+      recommendations.push('⚠️ API timeout detected - CMS server may be unreachable or slow');
+      recommendations.push('ACTION: Verify CMS_API_URL is correct and accessible');
+      recommendations.push('Check network connectivity and Strapi server status');
+    }
+    
+    if (!hasAuthErrors && !hasTimeoutErrors) {
+      recommendations.push('API connectivity issues detected. Verify CMS_API_TOKEN and CMS_API_URL environment variables.');
+    }
   }
 
   if (summary.no_content > 0) {
@@ -181,6 +206,7 @@ export async function GET() {
 
   if (summary.successful > 0 && summary.errors === 0) {
     recommendations.push('✓ All API endpoints accessible. Frontend should work correctly.');
+    recommendations.push(`Average response time: ${avgResponseTime.toFixed(0)}ms`);
   }
 
   return NextResponse.json(
