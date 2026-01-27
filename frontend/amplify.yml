@@ -3,6 +3,10 @@ applications:
   - appRoot: frontend
     frontend:
       buildPath: /
+      envType: frontend
+      env:
+        SKIP_PRISMA_VALIDATION: 'true'
+        NODE_OPTIONS: '--max-old-space-size=4096'
       phases:
         preBuild:
           commands:
@@ -11,7 +15,10 @@ applications:
             - npx prisma generate
         build:
           commands:
-            - cd frontend && rm -rf .next && pnpm run build
+            - cd frontend && pnpm run build
+        postBuild:
+          commands:
+            - echo 'Build complete'
       artifacts:
         baseDirectory: frontend/.next
         files:
