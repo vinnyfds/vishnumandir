@@ -65,6 +65,7 @@ export function Header() {
     ],
     calendar: [
       { href: "/calendar/current-events", label: "Current Events" },
+      { href: "/calendar/announcements", label: "Announcements" },
       { href: "/calendar/newsletter", label: "Newsletter" },
       { href: "/calendar/annual-calendar", label: "Annual Calendar" },
     ],
