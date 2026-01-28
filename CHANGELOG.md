@@ -7,6 +7,115 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Added
+- feat(announcements): Created announcements archive page with current and past sections
+  - `frontend/src/app/(site)/calendar/announcements/page.tsx` - New page showing all announcements (current + past)
+  - Modified `fetchAnnouncements()` to accept `includeExpired` parameter for bypassing displayUntil filter
+  - Landing page (`/`) continues showing only current announcements
+  - Archive page (`/calendar/announcements`) shows complete history with past announcements in separate section
+  - When new Strapi content is added, it appears on both landing page and announcements page
+  
+- feat(cache): Implemented manual cache revalidation API
+  - `frontend/src/app/api/revalidate/route.ts` - Secure endpoint for manual ISR cache invalidation
+  - Accepts `secret` and `path` parameters to trigger selective cache refreshes
+  - Requires `REVALIDATION_SECRET` environment variable for security
+  - Useful for immediately refreshing cache when content changes (instead of waiting 5 minutes)
+  - Usage: `POST /api/revalidate?secret=YOUR_SECRET&path=/calendar/announcements`
+
+- feat(cache): Implemented Strapi webhook integration for automatic cache invalidation
+  - `frontend/src/app/api/webhooks/strapi/route.ts` - Webhook endpoint for Strapi to trigger cache refresh
+  - Verifies webhook signature using `X-Webhook-Secret` header for security
+  - Automatically revalidates affected pages when content is published/updated in Strapi
+  - Maps Strapi content types to frontend pages (announcements → `/calendar/announcements`, events → `/calendar/current-events`, etc.)
+  - Production-ready automatic cache invalidation without manual intervention
+
+- feat(debug): Created content diagnostic endpoint for debugging filtering issues
+  - `frontend/src/app/api/debug/content/route.ts` - Shows raw CMS data vs. filtered results
+  - Displays why content is being filtered out (past dates, expired announcements, missing attributes)
+  - Helps diagnose "content doesn't show but exists in CMS" issues
+  - Provides detailed breakdown of current vs. past announcements and future vs. past events
+
+- feat(debug): Created form submission diagnostic endpoint
+  - `frontend/src/app/api/debug/forms/route.ts` - Tests form submission setup and backend connectivity
+  - Validates `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_API_KEY` environment variables
+  - Tests backend reachability from frontend
+  - Provides clear recommendations for fixing form submission issues
+
+- docs(deployment): Created comprehensive cache invalidation guide
+  - `docs/deployment/CACHE_INVALIDATION.md` - Complete guide for ISR cache management
+  - Documents both manual revalidation API and Strapi webhook approaches
+  - Explains ISR caching mechanism and why content might not update immediately
+  - Includes setup instructions, usage examples, troubleshooting, and best practices
+
+- docs(deployment): Created CMS content troubleshooting guide
+  - `docs/deployment/CMS_CONTENT_TROUBLESHOOTING.md` - Comprehensive troubleshooting for missing content
+  - Covers common issues: unpublished content, filtered by dates, expired announcements, environment variables
+  - Includes advanced troubleshooting, layered testing approach, and verification workflows
+  - Diagnostic endpoints reference and support information
+
+### Changed
+- refactor(announcements): Modified `fetchAnnouncements()` to support including expired announcements
+  - Added `includeExpired?: boolean` parameter to filter options
+  - When `includeExpired: true` or `displayUntil` not provided, all announcements are returned
+  - When `displayUntil` is provided and `includeExpired` is false, only current announcements are filtered
+  - Maintains backward compatibility (home page still filters by default)
+
+- refactor(calendar): Updated calendar hub page to include announcements link
+  - Added "Announcements" card to navigation grid at `/calendar/announcements`
+  - Changed grid from 3 columns to 4 columns to accommodate new link
+  - Maintains consistent styling and layout with existing calendar links
+
+- feat(env): All form submission routes now validate environment variables
+  - `frontend/src/app/api/v1/forms/email-subscription/route.ts` - Added NEXT_PUBLIC_API_URL validation
+  - `frontend/src/app/api/v1/forms/sponsorship/route.ts` - Added NEXT_PUBLIC_API_URL validation
+  - `frontend/src/app/api/v1/forms/facility-request/route.ts` - Added NEXT_PUBLIC_API_URL validation
+  - `frontend/src/app/api/v1/forms/donation-statement/route.ts` - Added NEXT_PUBLIC_API_URL validation
+  - `frontend/src/app/api/v1/forms/change-of-address/route.ts` - Added NEXT_PUBLIC_API_URL validation
+  - Previously: Used fallback to `http://localhost:4000` which failed in production
+  - Now: Requires explicit `NEXT_PUBLIC_API_URL` set in Amplify environment variables
+  - Clear error messages if URL or API key missing instead of silently failing
+
+- docs(deployment): Enhanced AMPLIFY_ENV_VARS.md with cache invalidation section
+  - Added "Cache Invalidation (NEW)" section explaining ISR cache issues
+  - Documents `REVALIDATION_SECRET` and `STRAPI_WEBHOOK_SECRET` environment variables
+  - Links to complete cache invalidation guide and troubleshooting guide
+  - References diagnostic endpoints for debugging
+
+### Added
+- feat(env): Created frontend/.env.local template for local development
+  - `frontend/.env.local` - Ensures frontend loads all four required env vars (form proxy + CMS content)
+  - Prevents "either/or" failures where form or CMS breaks when missing one env pair
+  - See docs/development/FRONTEND_ENV_SETUP.md for detailed instructions
+- feat(scripts): Created validate-frontend-env.sh script to verify all required env vars
+  - `scripts/validate-frontend-env.sh` - Validates presence of NEXT_PUBLIC_API_URL, NEXT_PUBLIC_API_KEY, CMS_API_URL, CMS_API_TOKEN
+  - Provides clear feedback on which variables are missing and why they're needed
+  - Helps prevent "form submission works but CMS doesn't" type failures
+  - Exits with success (0) if all vars set, failure (1) if any missing
+- docs(development): Created FRONTEND_ENV_SETUP.md with comprehensive env configuration guide
+  - Explains why frontend needs all four env vars (form proxy + CMS content)
+  - Step-by-step local development setup
+  - Why frontend/.env.local is needed (Next.js loads from app directory, not repo root)
+  - Troubleshooting common issues (form proxy failures, missing CMS content, etc.)
+  - Lazy env loading pattern explanation
+
+### Fixed
+- fix(env): Fixed frontend Strapi env initialization to use lazy loading instead of module-level
+  - Updated `frontend/src/lib/strapi.ts` - Added getStrapiConfig() function for lazy env reading
+  - Updated `frontend/src/lib/strapi-utils.ts` - Same lazy initialization pattern
+  - Ensures CMS_API_URL and CMS_API_TOKEN are read at request time, not at module import
+  - Matches backend pattern from `backend/src/services/strapi.service.ts`
+  - Prevents "empty token" bugs where env isn't ready when module first loads
+  - Frontend Strapi integration now consistent with backend (lazy init)
+
+### Changed
+- docs(deployment): Enhanced AMPLIFY_ENV_VARS.md with critical note about env conflicts
+  - Added prominent warning about needing ALL FOUR variables for both flows
+  - Explained that "form works but CMS doesn't" is env configuration, not code conflict
+  - Added new troubleshooting section: "Environment Variables Conflict"
+  - Lists specific checklist for verifying all four vars in Amplify Console
+  - Helps prevent deployment failures where one flow works and other doesn't
+  - Root cause identified: incomplete env configuration (not code issues)
+
+### Added
 - feat(email): Implemented Resend inbound email handling with webhook verification
   - Created `backend/src/api/webhooks/resend.routes.ts` with Svix signature verification for Resend webhooks
   - Added `POST /webhooks/resend` endpoint that verifies webhook signing (svix-id, svix-timestamp, svix-signature headers)

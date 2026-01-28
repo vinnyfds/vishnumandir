@@ -4,6 +4,27 @@
 **App Name:** `vishnumandir`  
 **Last Updated:** 2026-01-27
 
+## ⚠️ CRITICAL: Both Form Submission and CMS Content Require ALL Four Variables
+
+The frontend Next.js app needs **all four** of these variables to work properly. If either flow is failing while the other works, the issue is **incomplete environment configuration**, not code conflicts.
+
+**Form Submission** (for posting sponsorships, facility requests, etc.):
+- Requires: `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_API_KEY`
+- If missing: Forms will fail to proxy to backend
+
+**CMS Content** (for displaying events, announcements, newsletters, etc.):
+- Requires: `CMS_API_URL` and `CMS_API_TOKEN`
+- If missing: Pages will not show content
+
+**When "working on" either form submission or CMS content:**
+1. ✅ Verify ALL FOUR variables are set in Amplify Console
+2. ✅ Never remove one pair when adding/fixing the other
+3. ✅ Both pairs must be present at the same time
+
+See [Environment Variables Conflict Troubleshooting](#troubleshooting) section below for more details.
+
+---
+
 ## Status
 
 ✅ **Environment variables have been successfully configured in Amplify** as of 2026-01-27.
@@ -120,6 +141,42 @@ aws amplify update-branch \
 
 ## Troubleshooting
 
+### Environment Variables Conflict: Form Submission OR CMS Content Works, Not Both
+
+**Symptoms:**
+- Form submission works but CMS content is missing
+- CMS content shows but form submission fails
+- After "fixing" one flow, the other breaks
+
+**Root Cause:**
+The frontend needs **all four** environment variables. When you focus on one flow and only configure its variables, the other flow breaks because it's missing its required variables.
+
+**Solution:**
+
+1. **Check Amplify Console:**
+   - Go to AWS Amplify Console → vishnumandir → App Settings → Environment Variables
+   - Verify these FOUR variables are ALL present and set:
+     - ✅ `NEXT_PUBLIC_API_URL` (for form proxy to backend)
+     - ✅ `NEXT_PUBLIC_API_KEY` (for form proxy to backend)
+     - ✅ `CMS_API_URL` (for CMS content fetching)
+     - ✅ `CMS_API_TOKEN` (for CMS content fetching)
+
+2. **If any are missing:**
+   - Click **Manage variables**
+   - Add the missing ones
+   - Click **Save**
+   - Trigger a new deployment
+
+3. **Local Development:**
+   - Use `frontend/.env.local` with all four variables
+   - Copy from root `.env` if needed
+   - Do NOT keep only one pair when debugging
+
+4. **Verify both flows work:**
+   - Test form submission: Submit a form and check for success message
+   - Test CMS content: Visit home page and verify events/announcements show
+   - If still failing, check the specific sections below
+
 ### CMS Content Not Showing on Frontend
 
 **Symptoms:**
@@ -218,3 +275,61 @@ cd /path/to/project
 - Never commit actual values to Git
 - Update `NEXT_PUBLIC_URL` after domain is attached to Amplify app
 - For CMS configuration issues, see [STRAPI_PERMISSIONS_VERIFICATION.md](./STRAPI_PERMISSIONS_VERIFICATION.md)
+
+## Cache Invalidation (NEW)
+
+### Problem: Content Updates Aren't Showing Immediately
+
+**Symptom:** You changed an event date in Strapi, but the website still shows the old content
+
+**Root Cause:** Frontend pages cache for 5 minutes (ISR). New content doesn't appear until cache expires or is manually cleared.
+
+**Solution 1: Manual Cache Revalidation (Recommended)**
+
+Set these environment variables in Amplify:
+- `REVALIDATION_SECRET` - Secret token for cache invalidation API
+
+Generate a secure secret:
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+Add to Amplify Console → Environment Variables:
+- Key: `REVALIDATION_SECRET`
+- Value: `<generated-secret-here>`
+
+Then call the revalidation endpoint:
+```bash
+curl -X POST "https://yourdomain.com/api/revalidate?secret=YOUR_SECRET&path=/"
+```
+
+**Solution 2: Strapi Webhook Integration (Production Recommended)**
+
+Set these environment variables in Amplify:
+- `STRAPI_WEBHOOK_SECRET` - Shared secret for webhook verification
+
+Configure Strapi webhook:
+1. Go to Strapi Admin → Settings → Webhooks
+2. Create new webhook
+3. URL: `https://yourdomain.com/api/webhooks/strapi`
+4. Events: Publish, Unpublish, Update
+5. Headers: `X-Webhook-Secret: YOUR_SECRET`
+6. Save
+
+When content changes in Strapi, webhook automatically triggers cache refresh.
+
+**Solution 3: Wait 5 Minutes**
+
+Default ISR cache refresh time. Content appears automatically.
+
+See [CACHE_INVALIDATION.md](./CACHE_INVALIDATION.md) for complete guide.
+
+### For More Information
+
+- **Cache Invalidation Guide:** See `docs/deployment/CACHE_INVALIDATION.md`
+- **CMS Troubleshooting:** See `docs/deployment/CMS_CONTENT_TROUBLESHOOTING.md`
+- **Diagnostic Endpoints:**
+  - `/api/debug/cms` - Test CMS connectivity
+  - `/api/debug/content` - Check content filtering
+  - `/api/debug/forms` - Check form submission setup
+

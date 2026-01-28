@@ -5,8 +5,15 @@
 
 import type { StrapiMedia } from "@/types/strapi";
 
-const CMS_API_URL =
-  process.env.CMS_API_URL || "http://localhost:1337/api";
+/**
+ * Get Strapi configuration (lazy initialization).
+ * Reads environment variables when called, not at module load time.
+ */
+function getStrapiConfig() {
+  return {
+    apiUrl: process.env.CMS_API_URL || "http://localhost:1337/api",
+  };
+}
 
 /**
  * Get full URL for a Strapi media/image
@@ -24,10 +31,12 @@ export function getStrapiImageUrl(media: StrapiMedia | undefined): string | null
     return null;
   }
 
+  const { apiUrl } = getStrapiConfig();
+  const baseUrl = apiUrl.replace("/api", "");
+
   // Strapi v5: flat structure with url directly accessible
   if ('url' in media && typeof media.url === 'string') {
     const imageUrl = media.url;
-    const baseUrl = CMS_API_URL.replace("/api", "");
     
     if (imageUrl.startsWith("http")) {
       return imageUrl;
@@ -38,7 +47,6 @@ export function getStrapiImageUrl(media: StrapiMedia | undefined): string | null
 
   // Strapi v4: nested structure with data.attributes.url
   if (media?.data?.attributes?.url) {
-    const baseUrl = CMS_API_URL.replace("/api", "");
     const imageUrl = media.data.attributes.url;
 
     if (imageUrl.startsWith("http")) {
@@ -65,10 +73,12 @@ export function getStrapiFileUrl(
     return null;
   }
 
+  const { apiUrl } = getStrapiConfig();
+  const baseUrl = apiUrl.replace("/api", "");
+
   // Strapi v5: flat structure with url directly accessible
   if ('url' in file && typeof file.url === 'string') {
     const fileUrl = file.url;
-    const baseUrl = CMS_API_URL.replace("/api", "");
 
     if (fileUrl.startsWith("http")) {
       return fileUrl;
@@ -79,7 +89,6 @@ export function getStrapiFileUrl(
 
   // Strapi v4: nested structure with data.attributes.url
   if (file?.data?.attributes?.url) {
-    const baseUrl = CMS_API_URL.replace("/api", "");
     const fileUrl = file.data.attributes.url;
 
     if (fileUrl.startsWith("http")) {

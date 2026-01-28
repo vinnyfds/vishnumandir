@@ -14,9 +14,17 @@ import type {
   StrapiPage,
 } from "@/types/strapi";
 
-const CMS_API_URL =
-  process.env.CMS_API_URL || "http://localhost:1337/api";
-const CMS_API_TOKEN = process.env.CMS_API_TOKEN || "";
+/**
+ * Get Strapi configuration (lazy initialization).
+ * Reads environment variables when called, not at module load time.
+ * This ensures env vars are available even if this module is imported early.
+ */
+function getStrapiConfig() {
+  return {
+    apiUrl: process.env.CMS_API_URL || "http://localhost:1337/api",
+    apiToken: process.env.CMS_API_TOKEN || "",
+  };
+}
 
 /**
  * Normalize Strapi v5 flat response to v4-like structure with attributes.
@@ -77,7 +85,8 @@ async function fetchStrapiContent<T>(
   filters?: Record<string, string | number | boolean | undefined>
 ): Promise<T | null> {
   try {
-    const url = new URL(`${CMS_API_URL}/${endpoint}`);
+    const { apiUrl, apiToken } = getStrapiConfig();
+    const url = new URL(`${apiUrl}/${endpoint}`);
     
     // Add query parameters
     if (filters) {
@@ -95,8 +104,8 @@ async function fetchStrapiContent<T>(
       "Content-Type": "application/json",
     };
 
-    if (CMS_API_TOKEN) {
-      headers["Authorization"] = `Bearer ${CMS_API_TOKEN}`;
+    if (apiToken) {
+      headers["Authorization"] = `Bearer ${apiToken}`;
     }
 
     const response = await fetch(url.toString(), {
@@ -305,15 +314,17 @@ export async function fetchPriests(): Promise<StrapiPriest[]> {
 
 /**
  * Fetch announcements from Strapi
- * @param filters - Optional filters (displayUntil, level, etc.)
+ * @param filters - Optional filters (displayUntil, level, includeExpired)
  * @returns Promise with array of announcements
  * 
  * Note: displayUntil filtering is done client-side due to Strapi v5 API limitations.
- * Only announcements that haven't expired (displayUntil is in the future or null) are returned.
+ * When includeExpired is false (default): Only announcements that haven't expired are returned.
+ * When includeExpired is true: All announcements are returned (for announcements archive page).
  */
 export async function fetchAnnouncements(filters?: {
   displayUntil?: Date;
   level?: "Info" | "High-Priority";
+  includeExpired?: boolean;
 }): Promise<StrapiAnnouncement[]> {
   const queryParams: Record<string, string> = {
     // Ensure only published announcements are returned
@@ -400,7 +411,8 @@ export async function fetchAnnouncements(filters?: {
   }
 
   // Filter by displayUntil date (only show non-expired announcements)
-  if (filters?.displayUntil) {
+  // Skip this filter if includeExpired is true (for announcements archive page)
+  if (filters?.displayUntil && !filters?.includeExpired) {
     const now = filters.displayUntil;
     const beforeDisplayUntilFilter = filteredAnnouncements.length;
     
@@ -440,7 +452,8 @@ export async function fetchAnnouncements(filters?: {
     console.log("[strapi] fetchAnnouncements - Final result:", {
       totalAnnouncements: filteredAnnouncements.length,
       level: filters?.level,
-      displayUntilFilter: !!filters?.displayUntil,
+      displayUntilFilter: !!filters?.displayUntil && !filters?.includeExpired,
+      includeExpired: !!filters?.includeExpired,
       announcements: filteredAnnouncements.map((a) => ({
         id: a.id,
         title: a.attributes?.title,

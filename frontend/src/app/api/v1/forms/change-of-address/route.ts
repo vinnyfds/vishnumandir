@@ -7,10 +7,20 @@ import { successResponse, errorResponse } from "@/lib/api-responses";
  */
 export async function POST(request: NextRequest) {
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL;
     const apiKey = process.env.NEXT_PUBLIC_API_KEY;
 
+    // Validate required environment variables
+    if (!backendUrl) {
+      console.error("[api/v1/forms/change-of-address] NEXT_PUBLIC_API_URL not configured");
+      return errorResponse(
+        "Backend API URL not configured. Contact administrator.",
+        500
+      );
+    }
+
     if (!apiKey) {
+      console.error("[api/v1/forms/change-of-address] NEXT_PUBLIC_API_KEY not configured");
       return errorResponse("API key not configured", 500);
     }
 

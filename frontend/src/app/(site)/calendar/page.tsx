@@ -87,6 +87,25 @@ export default async function CalendarPage() {
             </p>
           </Link>
 
+          {/* Announcements */}
+          <Link
+            href="/calendar/announcements"
+            className="group bg-white rounded-xl p-8 border-2 border-primary/5 shadow-warm hover:shadow-lg hover:border-primary/20 transition-all duration-300"
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div className="p-3 bg-accent/10 rounded-full text-accent">
+                <Calendar className="w-6 h-6" />
+              </div>
+              <ArrowRight className="w-5 h-5 text-accent opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
+            <h2 className="font-serif text-2xl font-semibold text-text-primary mb-2">
+              Announcements
+            </h2>
+            <p className="text-text-secondary">
+              View all current and past announcements from the temple.
+            </p>
+          </Link>
+
           {/* Annual Calendar */}
           <Link
             href="/calendar/annual-calendar"
