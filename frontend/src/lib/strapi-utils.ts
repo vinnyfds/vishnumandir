@@ -160,16 +160,40 @@ export function formatTime(time: string): string {
 
 /**
  * Check if an event is in the future
- * @param date - ISO date string
- * @param time - Time string (HH:mm:ss)
- * @returns True if event is in the future
+ * Handles various date/time formats and provides better error handling
+ * @param date - Date string (supports YYYY-MM-DD, YYYY/MM/DD, or ISO format)
+ * @param time - Time string (supports HH:mm:ss, HH:mm, or other common formats)
+ * @returns True if event is in the future, false otherwise
  */
 export function isFutureEvent(date: string, time: string): boolean {
   try {
-    const eventDate = new Date(`${date}T${time}`);
+    // Normalize date format (convert YYYY/MM/DD to YYYY-MM-DD)
+    const normalizedDate = date.replace(/\//g, "-");
+    
+    // Ensure time format is valid (pad with seconds if needed)
+    let normalizedTime = time;
+    const timeParts = time.split(":");
+    if (timeParts.length === 2) {
+      // HH:mm -> HH:mm:00
+      normalizedTime = `${time}:00`;
+    }
+    
+    // Create date object
+    const eventDate = new Date(`${normalizedDate}T${normalizedTime}`);
+    
+    // Validate it's a valid date
+    if (isNaN(eventDate.getTime())) {
+      console.warn(`[isFutureEvent] Invalid date/time: "${date}T${time}"`, {
+        normalizedDate,
+        normalizedTime,
+      });
+      return false;
+    }
+    
     const now = new Date();
     return eventDate > now;
-  } catch {
+  } catch (error) {
+    console.warn(`[isFutureEvent] Error parsing date/time: "${date}" "${time}"`, error);
     return false;
   }
 }

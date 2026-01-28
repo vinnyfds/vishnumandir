@@ -111,6 +111,36 @@ export default async function HomePage() {
       return isFutureEvent(event.attributes.date, event.attributes.startTime);
     })
     .slice(0, 6);
+
+  // Production-safe logging for event filtering (controlled by environment variable)
+  if (process.env.DEBUG_EVENT_FILTERING === "true" || process.env.NODE_ENV === "development") {
+    console.log("[HomePage] Event filtering analysis:", {
+      allEventsCount: allEvents.length,
+      validEventsCount: validEvents.length,
+      futureEventsCount: futureEvents.length,
+      debugInfo: {
+        fetchedWithPublishedAtFilter: "publishedAt: true",
+        sortedBy: "date:asc",
+        limitedTo: 6,
+      },
+      sampleFilteredOut: validEvents
+        .filter((event) => {
+          if (!event.attributes.date || !event.attributes.startTime) {
+            return true;
+          }
+          return !isFutureEvent(event.attributes.date, event.attributes.startTime);
+        })
+        .slice(0, 3)
+        .map((event) => ({
+          title: event.attributes?.title,
+          date: event.attributes?.date,
+          startTime: event.attributes?.startTime,
+          reason: !event.attributes.date || !event.attributes.startTime 
+            ? "Missing date or startTime" 
+            : "Date/time is in the past",
+        })),
+    });
+  }
   return (
     <>
       <script

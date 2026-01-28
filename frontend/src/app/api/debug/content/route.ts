@@ -39,30 +39,89 @@ export async function GET() {
     const futureEvents: unknown[] = [];
     const pastEvents: unknown[] = [];
 
+    // Calculate now for date comparisons
+    const now = new Date();
+
     allEvents.forEach((event) => {
       if (!event?.attributes?.date || !event?.attributes?.startTime) {
         pastEvents.push({
           id: event.id,
           title: event.attributes?.title || "Untitled",
+          date: event.attributes?.date || "MISSING",
+          startTime: event.attributes?.startTime || "MISSING",
+          publishedAt: event.attributes?.publishedAt,
           reason: "Missing date or startTime",
+          analysis: {
+            hasDate: !!event?.attributes?.date,
+            hasStartTime: !!event?.attributes?.startTime,
+          },
         });
         return;
       }
 
-      if (isFutureEvent(event.attributes.date, event.attributes.startTime)) {
+      // Enhanced analysis for date/time parsing
+      const dateStr = String(event.attributes.date);
+      const timeStr = String(event.attributes.startTime);
+      let parsedDateTime: Date | null = null;
+      let parseError: string | null = null;
+
+      try {
+        // Try parsing the date/time combination
+        parsedDateTime = new Date(`${dateStr}T${timeStr}`);
+        
+        // Validate it's a valid date
+        if (isNaN(parsedDateTime.getTime())) {
+          throw new Error("Invalid Date object");
+        }
+      } catch (err) {
+        parseError = `Failed to parse "${dateStr}T${timeStr}": ${err instanceof Error ? err.message : "Unknown error"}`;
+      }
+
+      if (!parsedDateTime || parseError) {
+        pastEvents.push({
+          id: event.id,
+          title: event.attributes?.title,
+          date: dateStr,
+          startTime: timeStr,
+          publishedAt: event.attributes?.publishedAt,
+          reason: "Date/time parsing failed",
+          analysis: {
+            parseError,
+            dateFormat: dateStr,
+            timeFormat: timeStr,
+          },
+        });
+        return;
+      }
+
+      const isFuture = parsedDateTime > now;
+      
+      if (isFuture) {
         futureEvents.push({
           id: event.id,
           title: event.attributes?.title,
-          date: event.attributes?.date,
-          startTime: event.attributes?.startTime,
+          date: dateStr,
+          startTime: timeStr,
+          publishedAt: event.attributes?.publishedAt,
+          analysis: {
+            eventDateTime: parsedDateTime.toISOString(),
+            currentTime: now.toISOString(),
+            timeUntilEvent: Math.floor((parsedDateTime.getTime() - now.getTime()) / 1000 / 60) + " minutes",
+          },
         });
       } else {
         pastEvents.push({
           id: event.id,
           title: event.attributes?.title,
-          date: event.attributes?.date,
-          startTime: event.attributes?.startTime,
+          date: dateStr,
+          startTime: timeStr,
+          publishedAt: event.attributes?.publishedAt,
           reason: "Date/time is in the past",
+          analysis: {
+            eventDateTime: parsedDateTime.toISOString(),
+            currentTime: now.toISOString(),
+            minutesPast: Math.floor((now.getTime() - parsedDateTime.getTime()) / 1000 / 60) + " minutes ago",
+          },
         });
       }
     });
@@ -203,6 +262,9 @@ export async function GET() {
         announcements: "displayUntil must be null or in the future (current date)",
         events: "Date and startTime must be in the future",
         today: today.toISOString().split("T")[0],
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        currentTime: now.toISOString(),
+        note: "Event dates are compared using JavaScript Date objects. Ensure Strapi dates are in ISO format (YYYY-MM-DD) and times are in HH:mm:ss format.",
       },
     };
 

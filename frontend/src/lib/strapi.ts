@@ -193,17 +193,37 @@ export async function fetchEvents(filters?: {
   // Normalize Strapi v5 flat response to v4-like structure
   const normalizedEvents = normalizeArrayToV4<StrapiEvent>(response.data);
 
+  // Client-side publishedAt filtering to ensure only published events are shown
+  // This is a backup check in case Strapi API returns unpublished items
+  let filteredEvents = normalizedEvents.filter((event) => {
+    const isPublished = event?.attributes?.publishedAt !== null && event?.attributes?.publishedAt !== undefined;
+    if (!isPublished && process.env.NODE_ENV === "development") {
+      console.warn("[strapi] Filtered out unpublished event client-side:", {
+        id: event.id,
+        title: event?.attributes?.title,
+        publishedAt: event?.attributes?.publishedAt,
+      });
+    }
+    return isPublished;
+  });
+
+  if (process.env.NODE_ENV === "development") {
+    console.log("[strapi] publishedAt filter applied client-side:", {
+      apiReturnedTotal: response.data.length,
+      afterPublishedAtFilter: filteredEvents.length,
+    });
+  }
+
   // Client-side category filtering (Strapi v5 API workaround)
-  let filteredEvents = normalizedEvents;
   if (filters?.category) {
-    filteredEvents = normalizedEvents.filter(
+    filteredEvents = filteredEvents.filter(
       (event) => event?.attributes?.category === filters.category
     );
 
     if (process.env.NODE_ENV === "development") {
       console.log("[strapi] Category filter applied client-side:", {
         requestedCategory: filters.category,
-        apiReturnedTotal: response.data.length,
+        beforeCategoryFilter: normalizedEvents.filter((e) => e?.attributes?.publishedAt !== null && e?.attributes?.publishedAt !== undefined).length,
         afterCategoryFilter: filteredEvents.length,
       });
     }

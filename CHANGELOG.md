@@ -7,6 +7,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Added
+- feat(debug): Enhanced diagnostic endpoint with detailed event date/time analysis
+  - `frontend/src/app/api/debug/content/route.ts` - Now shows detailed breakdown of event parsing issues
+  - Includes event date/time parsing analysis, timezone information, and time until event
+  - Provides analysis object with parseError details when date/time parsing fails
+  - Helps diagnose why events aren't displaying due to date/time format issues
+
+- feat(strapi): Improved isFutureEvent function with better date/time format handling
+  - `frontend/src/lib/strapi-utils.ts` - Enhanced `isFutureEvent()` function
+  - Now handles multiple date formats (YYYY-MM-DD, YYYY/MM/DD, ISO format)
+  - Handles various time formats (HH:mm:ss, HH:mm with auto-padding)
+  - Provides detailed console warnings with parsing errors and format information
+  - Better error handling prevents false filtering of events due to format issues
+
+- feat(strapi): Added client-side publishedAt filtering for events
+  - `frontend/src/lib/strapi.ts` - Modified `fetchEvents()` function
+  - Now filters out unpublished events on the client side as a backup check
+  - Includes detailed logging of publishedAt filtering results
+  - Ensures only published events are shown even if Strapi API returns drafts
+
+- feat(home): Added production-safe logging for event filtering analysis
+  - `frontend/src/app/(site)/page.tsx` - Home page now logs detailed event filtering info
+  - Controlled by `DEBUG_EVENT_FILTERING=true` environment variable
+  - Shows sample events filtered out and reasons (missing dates, past dates)
+  - Helps diagnose why specific events aren't appearing on the home page
+
+### Added
 - feat(announcements): Created announcements archive page with current and past sections
   - `frontend/src/app/(site)/calendar/announcements/page.tsx` - New page showing all announcements (current + past)
   - Modified `fetchAnnouncements()` to accept `includeExpired` parameter for bypassing displayUntil filter
