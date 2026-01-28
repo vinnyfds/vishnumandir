@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Added
+- feat(email): Implemented Resend inbound email handling with webhook verification
+  - Created `backend/src/api/webhooks/resend.routes.ts` with Svix signature verification for Resend webhooks
+  - Added `POST /webhooks/resend` endpoint that verifies webhook signing (svix-id, svix-timestamp, svix-signature headers)
+  - Handles `email.received` events and optionally sends admin notifications via email
+  - Mounted webhook route in `backend/src/server.ts` before `express.json()` to receive raw body (required for signature verification)
+  - Added `RESEND_WEBHOOK_SECRET` environment variable to `scripts/backend-env-template.txt`
+  - Created comprehensive documentation in `docs/deployment/RESEND_INBOUND_EMAIL_SETUP.md` covering:
+    - Route 53 MX record configuration for inbound email receiving
+    - Resend dashboard webhook setup and secret management
+    - Backend webhook implementation details
+    - Troubleshooting guide for MX failures and webhook issues
+  - Inbound email flow: Domain MX → Resend SMTP → Webhook POST → Backend verification → Admin notification
+
 ### Fixed
 - fix(backend): Fixed backend service crashing due to missing Prisma Client initialization
   - Regenerated Prisma Client on production server and copied to backend node_modules

@@ -26,6 +26,7 @@ STRIPE_API_VERSION="2024-11-20.acacia"
 RESEND_API_KEY="re_..."
 SENDER_EMAIL_ADDRESS="Vishnu Mandir <no-reply@vishnumandirtampa.com>"
 ADMIN_EMAIL_ADDRESS="admin@vishnumandirtampa.com"
+RESEND_WEBHOOK_SECRET="whsec_..."
 
 # Frontend/CMS URLs
 FRONTEND_URL="https://vishnumandirtampa.com"

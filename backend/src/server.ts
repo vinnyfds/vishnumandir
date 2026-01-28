@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import { corsOptions } from "./config/corsOptions";
 import { apiRoutes } from "./api";
 import { handleStripeWebhook } from "./api/webhooks/stripe.routes";
+import { handleResendWebhook } from "./api/webhooks/resend.routes";
 import { errorHandler } from "./middleware/error.middleware";
 
 dotenv.config();
@@ -20,6 +21,14 @@ app.post(
   express.raw({ type: "application/json" }),
   async (req: express.Request, res: express.Response) => {
     await handleStripeWebhook(req, res);
+  }
+);
+
+app.post(
+  "/webhooks/resend",
+  express.raw({ type: "application/json" }),
+  async (req: express.Request, res: express.Response) => {
+    await handleResendWebhook(req, res);
   }
 );
 
