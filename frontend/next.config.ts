@@ -1,6 +1,27 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  /**
+   * Explicit environment variable configuration for Lambda runtime
+   * This ensures server-side variables are available in API routes when deployed on AWS Amplify
+   * Variables without NEXT_PUBLIC_ prefix are server-side only and should be available in Lambda
+   * 
+   * Reference: https://nextjs.org/docs/app/api-reference/next-config-js/env
+   */
+  env: {
+    // CMS configuration - CRITICAL for content fetching
+    CMS_API_URL: process.env.CMS_API_URL,
+    CMS_API_TOKEN: process.env.CMS_API_TOKEN,
+    // Stripe configuration
+    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+    // Cognito configuration
+    COGNITO_USER_POOL_ID: process.env.COGNITO_USER_POOL_ID,
+    COGNITO_CLIENT_ID: process.env.COGNITO_CLIENT_ID,
+    // Revalidation
+    REVALIDATION_SECRET: process.env.REVALIDATION_SECRET,
+    STRAPI_WEBHOOK_SECRET: process.env.STRAPI_WEBHOOK_SECRET,
+  },
   images: {
     remotePatterns: [
       {

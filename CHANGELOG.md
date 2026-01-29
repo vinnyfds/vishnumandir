@@ -7,6 +7,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Added
+- feat(debug): Created `/api/debug/env` endpoint for runtime environment variable diagnostics
+  - `frontend/src/app/api/debug/env/route.ts` - NEW endpoint
+  - Lists all available environment variables at runtime in Lambda
+  - Shows which CMS variables (`CMS_API_URL`, `CMS_API_TOKEN`) are accessible
+  - Safely displays variable information without exposing sensitive values
+  - Provides recommendations for troubleshooting missing variables
+  - Critical for diagnosing why Amplify environment variables may not be available in API routes
+
+- feat(config): Added explicit environment variable configuration to `next.config.ts`
+  - `frontend/next.config.ts` - New `env` configuration object
+  - Explicitly passes CMS, Stripe, Cognito, and revalidation variables to Lambda runtime
+  - Ensures server-side environment variables are available in API routes when deployed on AWS Amplify
+  - Fixes issue where environment variables configured in Amplify Console weren't accessible in production
+
 - feat(logging): Added detailed event filtering logging to event pages
   - `frontend/src/app/(site)/calendar/current-events/page.tsx` - Logs event filtering analysis (total fetched, filtered counts, reasons)
   - `frontend/src/app/(site)/education/events/page.tsx` - Logs step-by-step filtering (API fetch → category filter → date filter)
