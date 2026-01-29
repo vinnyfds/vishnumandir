@@ -139,6 +139,7 @@ Adhere to this standardized project structure. When creating new files, place th
 ├── types/                        # TypeScript type definitions
 ├── .cursorrules                  # This file
 ├── CHANGELOG.md                  # Project changelog (MUST update for all changes)
+├── LEARNINGS.md                  # Technical learnings from challenging tasks
 ├── tailwind.config.ts            # Tailwind CSS configuration
 └── next.config.mjs               # Next.js configuration
 ```
@@ -901,16 +902,48 @@ Closes #123
 
 ### For AI Assistants
 
-1. **Check CHANGELOG.md First:** Before performing ANY task, MUST read and review `CHANGELOG.md` to understand:
+**Before Starting Any Task:**
+
+1. **Check CHANGELOG.md:** Review recent changes to understand:
    - Recent changes and implementations
    - Established patterns and conventions
    - Previous work that might conflict or overlap
    - Current project state and context
-2. **Acknowledge and Plan:** Before writing code, briefly state your plan
-3. **Follow Rules:** Strictly adhere to all rules in this document
-4. **Update Changelog:** After generating or modifying code, MUST append to `CHANGELOG.md`
+
+2. **Check LEARNINGS.md:** Review technical learnings to:
+   - Understand known solutions to common problems
+   - Avoid mistakes made in previous tasks
+   - Apply proven patterns from challenging issues
+   - Understand why certain architectural decisions were made
+
+**During Task Execution:**
+
+3. **Acknowledge and Plan:** Before writing code, briefly state your plan
+4. **Follow Rules:** Strictly adhere to all rules in this document
 5. **Be Proactive:** If a request is ambiguous or conflicts with rules, ask for clarification
 6. **Code Quality:** Generate clean, readable, self-documenting code with JSDoc comments
+
+**After Completing Any Task:**
+
+7. **Update Changelog:** MUST append to `CHANGELOG.md` for ALL changes (new features, bug fixes, refactoring, etc.)
+
+8. **Update Learnings (if applicable):** Append to `LEARNINGS.md` if task involved:
+   - Troubleshooting a challenging issue
+   - Discovering a non-obvious solution or pattern
+   - Encountering a deployment/runtime issue requiring specific configuration
+   - Finding a workaround for a platform-specific limitation
+   - Learning something that would help future troubleshooting
+   
+   **When NOT to update LEARNINGS.md:**
+   - Simple feature additions without challenges
+   - Routine bug fixes with obvious solutions
+   - Standard refactoring without new patterns
+   
+   **Quality checks for LEARNINGS.md entries:**
+   - Check for duplicates before adding (search existing entries)
+   - Include Problem, Root Cause, Solution, Prevention, and Files
+   - Keep entries concise but complete
+   - Use code examples for clarity
 
 ### Context References
 
@@ -1043,6 +1076,100 @@ applications:
 - **Prisma Client Missing:** Ensure `npx prisma generate` runs before build
 - **Environment Variables:** Set all required variables in Amplify Console
 - **Database Connection:** Ensure DATABASE_URL includes `?sslmode=require` for RDS
+
+---
+
+## 21.1 AWS CLI for Lightsail Database Operations
+
+**IMPORTANT:** For Lightsail database operations (creation, management, configuration), ALWAYS use AWS CLI instead of trying to connect with local psql tools or manual approaches.
+
+### Why AWS CLI?
+
+- Lightsail databases are managed AWS resources accessible via AWS API, not direct localhost connections
+- AWS CLI commands are the authoritative way to manage Lightsail resources
+- Public access, endpoint retrieval, and state management are handled through AWS CLI
+- Avoids authentication/connection issues that occur with direct psql attempts
+
+### Common Lightsail Database Operations
+
+**List all Lightsail databases:**
+```bash
+aws lightsail get-relational-databases --query 'relationalDatabases[*].[name,state,publiclyAccessible]' --output table
+```
+
+**Create a new Lightsail database:**
+```bash
+aws lightsail create-relational-database \
+  --relational-database-name <name> \
+  --relational-database-blueprint-id postgres_16 \
+  --relational-database-bundle-id micro_2_0 \
+  --master-database-name postgres \
+  --master-username <username> \
+  --master-user-password <password> \
+  --region us-east-1 \
+  --availability-zone us-east-1a
+```
+
+**Enable public access to database:**
+```bash
+aws lightsail update-relational-database \
+  --relational-database-name <name> \
+  --publicly-accessible
+```
+
+**Get database endpoint:**
+```bash
+aws lightsail get-relational-database \
+  --relational-database-name <name> \
+  --query 'relationalDatabase.relationalDatabaseEndpoint.address' \
+  --output text
+```
+
+**Wait for database to become available:**
+```bash
+aws lightsail get-relational-database \
+  --relational-database-name <name> \
+  --query 'relationalDatabase.state' --output text
+```
+
+### After Database Creation
+
+Once you have the endpoint from AWS CLI, use the credentials to connect:
+
+```bash
+PGPASSWORD="<password>" psql -U <username> \
+  -h <endpoint> -p 5432 -d postgres \
+  -c "SELECT version();"
+```
+
+Then update environment variables with the endpoint and run migrations.
+
+### Known Issue: Medusa CLI + AWS RDS Connection Pooling
+
+**Problem:** When running `pnpm exec medusa db:migrate` or `medusa db:setup` against AWS RDS/Lightsail PostgreSQL endpoints, Knex connection pooling may fail with timeout errors even though direct psql connections work.
+
+**Cause:** AWS RDS endpoints resolve to multiple IPs, and Knex's connection pooling doesn't handle this well initially.
+
+**Solution Options:**
+
+1. **Run migrations from AWS Lambda** (recommended for production):
+   - Deploy the commerce package to AWS Lambda
+   - Run migrations from there (Lambda is within AWS network)
+   - Use AWS CodeBuild or similar CI/CD service
+
+2. **Use Medusa Seed Data Script** (development workaround):
+   - Medusa provides seed data functionality
+   - Run: `pnpm exec medusa seed` after migrations eventually succeed
+
+3. **Manual database initialization** (if migrations consistently fail):
+   - Run initial schema setup manually using psql
+   - Then attempt migrations
+   - As last resort, can use direct SQL to create core Medusa tables
+
+4. **RDS Proxy** (production setup):
+   - Set up AWS RDS Proxy in front of the database
+   - Use proxy endpoint instead of direct RDS endpoint
+   - Provides better connection pooling and stability
 
 ---
 

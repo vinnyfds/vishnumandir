@@ -7,6 +7,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Added
+- docs(learnings): Created comprehensive LEARNINGS.md document for technical knowledge capture
+  - `LEARNINGS.md` - Systematic documentation of technical learnings from challenging tasks
+  - Organized by category: Frontend, Backend, Deployment, Database, API Integration, Architecture, Troubleshooting
+  - Each learning includes Problem, Root Cause, Solution, Prevention, and Files sections
+  - Covers critical learnings: AWS Amplify env vars, ISR cache, lazy initialization, CORS, multipart handling, webhooks
+  - Troubleshooting patterns for common production issues
+
+- docs(cursorrules): Updated Section 19 (AI Interaction Guidelines) to reference LEARNINGS.md
+  - Requires checking LEARNINGS.md before starting tasks (alongside CHANGELOG.md)
+  - Requires updating LEARNINGS.md after completing challenging tasks
+  - Clarifies when to update (troubleshooting, non-obvious solutions, deployment issues)
+  - When NOT to update (simple features, routine fixes, standard refactoring)
+  - Added file structure documentation for LEARNINGS.md
+
 - feat(debug): Created `/api/debug/env` endpoint for runtime environment variable diagnostics
   - `frontend/src/app/api/debug/env/route.ts` - NEW endpoint
   - Lists all available environment variables at runtime in Lambda
