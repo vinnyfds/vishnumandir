@@ -7,6 +7,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Added
+- feat(logging): Added detailed event filtering logging to event pages
+  - `frontend/src/app/(site)/calendar/current-events/page.tsx` - Logs event filtering analysis (total fetched, filtered counts, reasons)
+  - `frontend/src/app/(site)/education/events/page.tsx` - Logs step-by-step filtering (API fetch → category filter → date filter)
+  - Controlled by `DEBUG_EVENT_FILTERING=true` environment variable
+  - Helps diagnose why events aren't displaying on specific pages
+  - Shows sample events filtered out with detailed reasons for each step
+
+- feat(components): Enhanced EventList component with troubleshooting help
+  - `frontend/src/components/shared/EventList.tsx` - Improved empty state with helpful guidance
+  - Shows troubleshooting tips when no events are available
+  - Links to diagnostic endpoint for admin troubleshooting
+  - Explains event date filtering and cache delays
+  - New `showTroubleshootingTips` prop to control help visibility
+
+- feat(validation): Added event data validation helper function
+  - `frontend/src/lib/strapi-utils.ts` - New `validateEventData()` function
+  - Validates required fields (title, date, startTime, publishedAt)
+  - Checks date/time formats and provides format error messages
+  - Validates date/time is in the future (warns if in past)
+  - Checks event category validity
+  - Returns detailed errors and warnings for debugging
+
 - feat(debug): Enhanced diagnostic endpoint with detailed event date/time analysis
   - `frontend/src/app/api/debug/content/route.ts` - Now shows detailed breakdown of event parsing issues
   - Includes event date/time parsing analysis, timezone information, and time until event

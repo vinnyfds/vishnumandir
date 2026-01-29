@@ -41,23 +41,6 @@ export default async function EducationEventsPage() {
   // Filter out items with missing attributes
   const validEvents = allEvents.filter((event) => event?.attributes);
 
-  // Debug logging in development
-  if (process.env.NODE_ENV === "development") {
-    console.log("[education/events] Fetched events:", {
-      total: validEvents.length,
-      events: validEvents.map((e) => ({
-        title: e.attributes.title,
-        category: e.attributes.category,
-        date: e.attributes.date,
-        startTime: e.attributes.startTime,
-        isFuture: isFutureEvent(
-          e.attributes.date,
-          e.attributes.startTime
-        ),
-      })),
-    });
-  }
-
   // Filter for future events only
   const futureEvents = validEvents.filter((event) => {
     // Guard against undefined date/startTime
@@ -67,13 +50,52 @@ export default async function EducationEventsPage() {
     return isFutureEvent(event.attributes.date, event.attributes.startTime);
   });
 
-  // Debug logging for filtered results
-  if (process.env.NODE_ENV === "development") {
-    console.log("[education/events] Future events:", {
-      total: futureEvents.length,
-      filteredOut: allEvents.length - futureEvents.length,
+  // Production-safe logging with detailed filtering analysis
+  if (process.env.DEBUG_EVENT_FILTERING === "true" || process.env.NODE_ENV === "development") {
+    const filteredOutByCategory = allEvents.filter((event) => event?.attributes?.category !== "Educational");
+    const filteredOutByDate = validEvents.filter((event) => {
+      if (!event.attributes.date || !event.attributes.startTime) {
+        return true;
+      }
+      return !isFutureEvent(event.attributes.date, event.attributes.startTime);
+    });
+
+    console.log("[education/events] Detailed event filtering analysis:", {
+      timestamp: new Date().toISOString(),
+      step1_apiFetch: {
+        total: allEvents.length,
+        description: "Total events fetched from API (all categories)",
+      },
+      step2_categoryFilter: {
+        totalWithEducationalCategory: validEvents.length,
+        filteredOutByCategoryMismatch: filteredOutByCategory.length,
+        description: "Filtered to only 'Educational' category events",
+      },
+      step3_dateTimeFilter: {
+        futureEventsDisplayed: futureEvents.length,
+        filteredOutByPastDateTime: filteredOutByDate.filter((e) => e.attributes.date && e.attributes.startTime).length,
+        filteredOutByMissingDateTime: filteredOutByDate.filter((e) => !e.attributes.date || !e.attributes.startTime).length,
+        description: "Filtered to only future date/time events",
+      },
+      sampleFilteredOutEvents: [
+        ...filteredOutByCategory.slice(0, 1).map((e) => ({
+          title: e?.attributes?.title,
+          category: e?.attributes?.category,
+          reason: `Wrong category (${e?.attributes?.category} != Educational)`,
+        })),
+        ...filteredOutByDate.slice(0, 2).map((event) => ({
+          title: event?.attributes?.title,
+          date: event?.attributes?.date,
+          startTime: event?.attributes?.startTime,
+          reason:
+            !event?.attributes?.date || !event?.attributes?.startTime
+              ? "Missing date or startTime"
+              : "Date/time is in the past",
+        })),
+      ],
     });
   }
+
   const structuredData = generateWebPageSchema({
     name: "Educational Events",
     description:

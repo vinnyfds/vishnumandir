@@ -45,6 +45,38 @@ export default async function CurrentEventsPage() {
     }
     return isFutureEvent(event.attributes.date, event.attributes.startTime);
   });
+
+  // Production-safe logging for event filtering analysis
+  if (process.env.DEBUG_EVENT_FILTERING === "true" || process.env.NODE_ENV === "development") {
+    const filteredOutEvents = allEvents.filter((event) => {
+      if (!event?.attributes?.date || !event?.attributes?.startTime) {
+        return true;
+      }
+      return !isFutureEvent(event.attributes.date, event.attributes.startTime);
+    });
+
+    console.log("[current-events] Event filtering analysis:", {
+      timestamp: new Date().toISOString(),
+      totalEventsFetched: allEvents.length,
+      validEventsWithDateAndTime: allEvents.filter((e) => e?.attributes?.date && e?.attributes?.startTime).length,
+      futureEventsDisplayed: futureEvents.length,
+      filteredOutCount: filteredOutEvents.length,
+      filteringBreakdown: {
+        missingDateOrTime: allEvents.filter((e) => !e?.attributes?.date || !e?.attributes?.startTime).length,
+        pastDateTime: filteredOutEvents.filter((e) => e?.attributes?.date && e?.attributes?.startTime).length,
+      },
+      sampleFilteredOutEvents: filteredOutEvents.slice(0, 3).map((event) => ({
+        title: event?.attributes?.title,
+        date: event?.attributes?.date,
+        startTime: event?.attributes?.startTime,
+        reason:
+          !event?.attributes?.date || !event?.attributes?.startTime
+            ? "Missing date or startTime"
+            : "Date/time is in the past",
+      })),
+    });
+  }
+
   const structuredData = generateWebPageSchema({
     name: "Current Events",
     description:

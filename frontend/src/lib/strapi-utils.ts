@@ -282,3 +282,83 @@ function renderRichTextNode(node: unknown): string {
 
   return "";
 }
+
+/**
+ * Validate Strapi event data for required fields and proper formats.
+ * Helps identify why events might not be displaying.
+ * 
+ * @param event - Strapi event object to validate
+ * @returns Object with validation result and detailed error messages
+ */
+export function validateEventData(event: any): {
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+} {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // Check required fields
+  if (!event?.attributes) {
+    errors.push("Event missing attributes object");
+    return { valid: false, errors, warnings };
+  }
+
+  const { attributes } = event;
+
+  // Check required fields
+  if (!attributes.title) {
+    errors.push("Missing required field: title");
+  }
+
+  if (!attributes.date) {
+    errors.push("Missing required field: date");
+  } else {
+    // Validate date format (should be YYYY-MM-DD or ISO)
+    const dateRegex = /^\d{4}-\d{2}-\d{2}/;
+    if (!dateRegex.test(attributes.date)) {
+      errors.push(`Invalid date format: "${attributes.date}" (expected YYYY-MM-DD or ISO format)`);
+    }
+  }
+
+  if (!attributes.startTime) {
+    errors.push("Missing required field: startTime");
+  } else {
+    // Validate time format (should be HH:mm:ss or HH:mm)
+    const timeRegex = /^\d{2}:\d{2}(:\d{2})?$/;
+    if (!timeRegex.test(attributes.startTime)) {
+      errors.push(`Invalid time format: "${attributes.startTime}" (expected HH:mm or HH:mm:ss)`);
+    }
+  }
+
+  // Check publishedAt status
+  if (!attributes.publishedAt) {
+    errors.push("Event not published: publishedAt is null or missing");
+  }
+
+  // Check category for Education page filtering
+  if (!attributes.category) {
+    warnings.push("Missing category field (won't appear on filtered event pages)");
+  } else if (!["Religious", "Cultural", "Educational", "Festival"].includes(attributes.category)) {
+    warnings.push(`Unknown category: "${attributes.category}" (expected: Religious, Cultural, Educational, or Festival)`);
+  }
+
+  // Check if event time is in the future
+  if (attributes.date && attributes.startTime) {
+    try {
+      const eventDate = new Date(`${attributes.date}T${attributes.startTime.padEnd(8, ':00')}`);
+      const now = new Date();
+      if (eventDate <= now) {
+        warnings.push(`Event date/time is in the past: ${attributes.date} ${attributes.startTime} (won't display on upcoming events pages)`);
+      }
+    } catch {
+      warnings.push("Could not parse event date/time to check if it's in the future");
+    }
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+    warnings,
+  };
+}
